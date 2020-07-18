@@ -183,13 +183,13 @@
 
 //Принцип работы сетки: (описание функции calcWidth)
 //везде отнимаем "-1" т.к. после последней колонки нет отступа
-//100% - (#{$gutter} * (#{$cols} - 1))  -  вычисляем сумму ширин всех колонок текущего контейнера без отступо между колонками
+//100% - (#{$gutter} * (#{$columns} - 1))  -  вычисляем сумму ширин всех колонок текущего контейнера без отступо между колонками
 //100% - (<отступ между колонками> * <общее кол-во колонок> - <1 колонка>))
 //
-//((100% - (#{$gutter} * (#{$cols} - 1))) / #{$cols})  -  вычисляем ширину 1-й колонки без отступов между колонками
+//((100% - (#{$gutter} * (#{$columns} - 1))) / #{$columns})  -  вычисляем ширину 1-й колонки без отступов между колонками
 //100% - (<отступ между колонками> * (<общее кол-во колонок> - <1 колонка>)) / <общее кол-во колонок>
 //
-//calc(((100% - (#{$gutter} * (#{$cols} - 1))) / #{$cols}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift})  -  считаем ширину колонок блока + отступы между
+//calc(((100% - (#{$gutter} * (#{$columns} - 1))) / #{$columns}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift})  -  считаем ширину колонок блока + отступы между
 // колонками + добавляем отступы между колоками, если нужно сдвинуть блок
 // (100% - (<отступ между колонками> * <общее кол-во колонок> - <1 колонка>)) / <общее кол-во колонок> * <требуемое кол-во колонок> + <отступ> * (<требуемое кол-во колонок> - <1 колонка> + <отступ между колонками(может быть отрицательный)>)
 
@@ -202,42 +202,42 @@
  * margin-right: $gutter;   or   margin-left: $gutter;
  */
 
-@function calcWidth($num, $gutterShift: 0px, $cols: $cols, $gutter: $gutter) {
-	@return calc(((100% - (#{$gutter} * (#{$cols} - 1))) / #{$cols}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift});
+@function calcWidth($num, $gutterShift: 0px, $columns: $columns, $gutter: $gutter) {
+	@return calc(((100% - (#{$gutter} * (#{$columns} - 1))) / #{$columns}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift});
 }
 
 // ширина колонки
-@mixin width($num, $gutterShift: 0px, $cols: $cols, $gutter: $gutter) {
-	width: calcWidth($num, $gutterShift, $cols, $gutter);
+@mixin width($num, $gutterShift: 0px, $columns: $columns, $gutter: $gutter) {
+	width: calcWidth($num, $gutterShift, $columns, $gutter);
 }
 
 //$property - задаём или margin или padding, по умолчанию margin
 // добавляем отступ слева
-@mixin pullLeft($num, $gutterShift: 0px, $property: margin, $cols: $cols, $gutter: $gutter) {
-	#{$property}-left: calcWidth($num, $gutterShift, $cols, $gutter);
+@mixin pullLeft($num, $gutterShift: 0px, $property: margin, $columns: $columns, $gutter: $gutter) {
+	#{$property}-left: calcWidth($num, $gutterShift, $columns, $gutter);
 }
 
 //$property - задаём или margin или padding, по умолчанию margin
 // добавляем отступ справа
-@mixin pullRight($num, $gutterShift: 0px, $property: margin, $cols: $cols, $gutter: $gutter) {
-	#{$property}-right: calcWidth($num, $gutterShift, $cols, $gutter);
+@mixin pullRight($num, $gutterShift: 0px, $property: margin, $columns: $columns, $gutter: $gutter) {
+	#{$property}-right: calcWidth($num, $gutterShift, $columns, $gutter);
 }
 
 // =============================================================================
 // custom grid
 // =============================================================================
-@mixin grid-row-flex($offset){
+@mixin grid-row-flex($offset: $offset){
 	display: flex;
 	margin-left: ($offset / -2);
 	margin-right: ($offset / -2);
 }
 
-@mixin grid-col($offset){
+@mixin grid-col($offset: $offset){
 	margin-left: ($offset / 2);
 	margin-right: ($offset / 2);
 }
 
-@mixin grid-size($n, $columns, $offset){
+@mixin grid-size($n, $columns: $columns, $offset: $offset){
 	width: #{calc(100% / #{$columns} * #{$n} - #{$offset})};
 }
 
@@ -266,4 +266,13 @@
 		left: 50%;
 		transform: translateX(-50%);
 	}
+}
+
+//нужно для fancybox
+@function max($numbers...) {
+	@return m#{a}x(#{$numbers});
+}
+
+@function min($numbers...) {
+	@return m#{i}n(#{$numbers});
 }
