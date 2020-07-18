@@ -1,0 +1,269 @@
+%visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	height: 1px;
+	width: 1px;
+}
+
+%unselectable {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none;   /* Chrome/Safari/Opera */
+	-khtml-user-select: none;    /* Konqueror */
+	-moz-user-select: none;      /* Firefox */
+	-ms-user-select: none;       /* Internet Explorer/Edge */
+	user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+// =============================================================================
+// placeholder with prefix
+// =============================================================================
+@mixin placeholder {
+	&::-webkit-input-placeholder {
+		@content
+	}
+	&:-moz-placeholder {
+		@content
+	}
+	&::-moz-placeholder {
+		@content
+	}
+	&:-ms-input-placeholder {
+		@content
+	}
+	&::placeholder {
+		@content
+	}
+}
+
+// =============================================================================
+// svg background
+// =============================================================================
+@mixin svgbg($width: 0, $height: 0, $url: '') {
+  content: '';
+  display: block;
+  position: absolute;
+  width: $width;
+  height: $height;
+  background-image: url($url);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+// =============================================================================
+// String Replace
+// =============================================================================
+@function str-replace($string, $search, $replace: "") {
+	$index: str-index($string, $search);
+
+	@if $index {
+		@return str-slice($string, 1, $index - 1) + $replace + str-replace(str-slice($string, $index + str-length($search)), $search, $replace);
+	}
+
+	@return $string;
+}
+
+// =============================================================================
+// Font Face
+// =============================================================================
+@mixin font-face($name, $path, $weight: null, $style: null, $exts: eot woff2 woff ttf svg otf) {
+	$src: null;
+
+	$extmods: (
+		eot: "?",
+		svg: "#" + str-replace($name, " ", "_")
+	);
+
+	$formats: (
+		otf: "opentype",
+		ttf: "truetype"
+	);
+
+	@each $ext in $exts {
+		$extmod: if(map-has-key($extmods, $ext), $ext + map-get($extmods, $ext), $ext);
+		$format: if(map-has-key($formats, $ext), map-get($formats, $ext), $ext);
+		$src: append($src, url(quote($path + "." + $extmod)) format(quote($format)), comma);
+	}
+
+	@font-face {
+		font-family: quote($name);
+		font-style: $style;
+		font-weight: $weight;
+		font-display: optional;
+		src: $src;
+	}
+}
+
+// =============================================================================
+// gradient background-image
+// =============================================================================
+@mixin bgi($color: #000000, $height: 1px, $bottom: 0) {
+	background-image: linear-gradient(to top, transparent $bottom, $color $bottom, $color $height+$bottom, transparent $height+$bottom);
+}
+
+// =============================================================================
+// underline animation
+// =============================================================================
+@mixin underline-end-state($bgSizeX: 100%, $bgSizeY: 100%, $bgPos: left, $behavior: null, $trsProps: null, $trsDuration: null) {
+	background-position: $bgPos;
+	@if ($behavior == null) {
+		background-size: $bgSizeX $bgSizeY;
+	}
+	@if ($behavior == show-on-hover) {
+		background-size: 100% $bgSizeY;
+	}
+	@if ($behavior == remove-on-hover) {
+		background-size: 0 $bgSizeY;
+	}
+	@if ($trsProps != null) {
+		transition-property: unquote($trsProps);
+	}
+	@if ($trsDuration != null) {
+		transition-duration: $trsDuration;
+	}
+}
+
+@mixin underline-start-state($color: #000000, $bgSizeX: 0, $bgSizeY: 100%, $bgPos: left, $trsProps: background-size, $trsDuration: .3s, $behavior: null, $height: 1px, $bottom: 0) {
+	@include bgi($color, $height, $bottom);
+	background-repeat: no-repeat;
+	background-position: $bgPos;
+	transition-property: unquote($trsProps);
+	transition-duration: $trsDuration;
+
+	@if ($behavior == null) {
+		background-size: $bgSizeX $bgSizeY;
+	}
+	@if ($behavior == show-on-hover) {
+		background-size: 0 $bgSizeY;
+	}
+
+	@if ($behavior == remove-on-hover) {
+		background-size: 100% $bgSizeY;
+	}
+}
+
+@mixin underline($color: #000000, $bgSizeX: 0, $bgSizeY: 100%, $bgPos: left, $trsProps: background-size, $trsDuration: .3s, $behavior: show-on-hover, $height: 1px, $bottom: 0) {
+	@include underline-start-state($color, $bgSizeX, $bgSizeY, $bgPos, $trsProps, $trsDuration, $behavior, $height, $bottom);
+	&.hover, &:hover {
+		@include underline-end-state($bgSizeX, $bgSizeY, $bgPos, $behavior);
+	}
+}
+
+// =============================================================================
+// make scroll bar invisible, but still working
+// =============================================================================
+@mixin invisibleScrollbar {
+	-ms-overflow-style: none; /* Internet Explorer 10+ */
+	scrollbar-width: none; /* Firefox */
+	&::-webkit-scrollbar {
+		display: none; /* Safari and Chrome */
+		width: 0;
+		height: 0;
+	}
+	-ms-overflow-style: none; // EDGE
+}
+
+// =============================================================================
+// reset button styles
+// =============================================================================
+@mixin btnReset($bgc: transparent) {
+	border: none;
+	outline: none;
+	background-color: $bgc;
+	appearance: none;
+	cursor: pointer;
+	&::-moz-focus-inner {
+		border: 0;
+	}
+}
+
+//Принцип работы сетки: (описание функции calcWidth)
+//везде отнимаем "-1" т.к. после последней колонки нет отступа
+//100% - (#{$gutter} * (#{$cols} - 1))  -  вычисляем сумму ширин всех колонок текущего контейнера без отступо между колонками
+//100% - (<отступ между колонками> * <общее кол-во колонок> - <1 колонка>))
+//
+//((100% - (#{$gutter} * (#{$cols} - 1))) / #{$cols})  -  вычисляем ширину 1-й колонки без отступов между колонками
+//100% - (<отступ между колонками> * (<общее кол-во колонок> - <1 колонка>)) / <общее кол-во колонок>
+//
+//calc(((100% - (#{$gutter} * (#{$cols} - 1))) / #{$cols}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift})  -  считаем ширину колонок блока + отступы между
+// колонками + добавляем отступы между колоками, если нужно сдвинуть блок
+// (100% - (<отступ между колонками> * <общее кол-во колонок> - <1 колонка>)) / <общее кол-во колонок> * <требуемое кол-во колонок> + <отступ> * (<требуемое кол-во колонок> - <1 колонка> + <отступ между колонками(может быть отрицательный)>)
+
+/**
+ * Как использовать:
+ * $gutter - опциональный параметр
+ *
+ * @include width(7, $gutter);
+ * @include pullRight(1);
+ * margin-right: $gutter;   or   margin-left: $gutter;
+ */
+
+@function calcWidth($num, $gutterShift: 0px, $cols: $cols, $gutter: $gutter) {
+	@return calc(((100% - (#{$gutter} * (#{$cols} - 1))) / #{$cols}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift});
+}
+
+// ширина колонки
+@mixin width($num, $gutterShift: 0px, $cols: $cols, $gutter: $gutter) {
+	width: calcWidth($num, $gutterShift, $cols, $gutter);
+}
+
+//$property - задаём или margin или padding, по умолчанию margin
+// добавляем отступ слева
+@mixin pullLeft($num, $gutterShift: 0px, $property: margin, $cols: $cols, $gutter: $gutter) {
+	#{$property}-left: calcWidth($num, $gutterShift, $cols, $gutter);
+}
+
+//$property - задаём или margin или padding, по умолчанию margin
+// добавляем отступ справа
+@mixin pullRight($num, $gutterShift: 0px, $property: margin, $cols: $cols, $gutter: $gutter) {
+	#{$property}-right: calcWidth($num, $gutterShift, $cols, $gutter);
+}
+
+// =============================================================================
+// custom grid
+// =============================================================================
+@mixin grid-row-flex($offset){
+	display: flex;
+	margin-left: ($offset / -2);
+	margin-right: ($offset / -2);
+}
+
+@mixin grid-col($offset){
+	margin-left: ($offset / 2);
+	margin-right: ($offset / 2);
+}
+
+@mixin grid-size($n, $columns, $offset){
+	width: #{calc(100% / #{$columns} * #{$n} - #{$offset})};
+}
+
+// =============================================================================
+// detect IE10 and above
+// =============================================================================
+@mixin IE10up(){
+	@media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+		@content;
+	}
+}
+
+// =============================================================================
+// Centering
+// =============================================================================
+@mixin center($axis: 'xy') {
+	position: absolute;
+	@if $axis == 'xy' {
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	} @else if $axis == 'y' {
+		top: 50%;
+		transform: translateY(-50%);
+	} @else if $axis == 'x' {
+		left: 50%;
+		transform: translateX(-50%);
+	}
+}

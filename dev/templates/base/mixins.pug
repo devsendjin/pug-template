@@ -1,0 +1,27 @@
+mixin space()
+	| #{' '}
+
+mixin links
+	.dev-nav
+		- let links = []
+		each link in links
+			a(href= '/' + link + '.html')= link
+		span= links.length
+
+-
+	const randomImageUrl = function (width = 800, height = 400, id) {
+		let idx = id || Math.floor(Math.random() * (20));
+		return 'https://picsum.photos/' + width + '/' + height + '?random=1' + idx;
+	};
+
+-
+	const  randomMinMax = (min, max) => {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
+
+mixin testBlock()
+	div(style="width: 100%; height: 100%; border: 1px solid #000; background-color: rgba(210, 210, 210, 0.97);")
+		| Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad aliquam, aut distinctio dolores earum explicabo ipsa magnam maxime nam nihil officiis pariatur porro quaerat rem reprehenderit vero voluptatem. Alias commodi debitis distinctio eligendi error, id ipsam iste labore magni necessitatibus tempora vero. Aut autem dicta enim, eos ex incidunt iure maxime necessitatibus ratione, sed tempore vitae voluptatibus. Assumenda at atque delectus, dignissimos distinctio doloremque doloribus dolorum est eum excepturi exercitationem fugiat harum, illo ipsum nostrum officia quam repudiandae tempore! Amet autem, cum dolorem eius iusto magni neque placeat quaerat. Accusamus aut autem distinctio maxime nesciunt odio officia quisquam repellendus similique?
+
+mixin video
+	iframe(width='560', height='315', src='https://www.youtube.com/embed/YE7VzlLtp-4', frameborder='0', allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture', allowfullscreen='')

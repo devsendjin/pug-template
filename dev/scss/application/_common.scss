@@ -1,0 +1,48 @@
+html.fixed,
+html.fixed body {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: $montserrat;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: $black;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: #ffffff;
+
+  .main {
+    flex-grow: 1;
+  }
+}
+
+body.lazyload-fade {
+  .lazyload, .lazyloading {
+    opacity: 0;
+    transition: opacity .6s;
+  }
+
+  .lazyloaded {
+    opacity: 1;
+    transition: opacity .6s;
+  }
+}
+
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
