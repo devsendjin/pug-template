@@ -1,8 +1,8 @@
 # Template for markup
 Compiling `pug` templates realized with [incremental compilation](https://github.com/mrmlnc/emitty).
 
-About concept of [incremental compilation](https://canonium.com/articles/pug-incremental-compiling/).
-  
+About concept of [incremental compilation](https://canonium.com/articles/emitty/).
+
 | Gulp task | Description |
 | ------ | ------ |
 | `server` | run [browsersync](https://www.browsersync.io/) |
@@ -12,7 +12,7 @@ About concept of [incremental compilation](https://canonium.com/articles/pug-inc
 | `templates` | build *html* pages from *pug* |
 | `build` | build html && css && js |
 
-  
+
 | CLI Flag | Description |
 | ------ | ------ |
 | `--s`, `--serve`, `--server` | enable [browsersync](https://www.browsersync.io/) |
