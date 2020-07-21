@@ -103,7 +103,8 @@ const styles = () => {
         .pipe(gcmq()) // переносит и объединяет все медиа запросы вниз css файла
         .pipe(autoprefixer())
         .pipe(csso({ restructure: true }))
-        .pipe(replace(/[\.\.\/]+images/gmi, '../img')) //заменяем пути к изображениям на правильные
+        .pipe(replace(/[\.\.\/]+img/gmi, '../img')) //заменяем пути к изображениям на правильные
+        // .pipe(replace(/url\(["']?(?:\.?\.?\/?)*(?:\w*\/)*(\w+)(.svg|.gif|.png|.jpg|.jpeg)["']?\)/gmi, '"../img/$1$2"')) //заменяем пути к изображениям на правильные
         .pipe(gulpIf(isDev, sourcemaps.write()))
         .pipe(dest('./dist/css'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
@@ -153,21 +154,32 @@ const createSvgSprite = () => {
         .pipe(replace('&gt;', '>'))
         .pipe(svgSprite({
             mode: {
+                // if we need bg svg background image
+                // css: {
+                //     dest: './',
+                //     prefix: '.svg-icon-%s',
+                //     dimensions: true,
+                //     sprite: 'sprite.svg',
+                //     bust: false,
+                //     render: {
+                //         scss: {
+                //             dest: '_sprite.scss',
+                //         }
+                //     }
+                // },
                 symbol: {
                     prefix: '.svg-icon-%s',
                     dimensions: '%s',
-                    sprite: path.resolve('./dist/img/svg/sprite.svg'),
+                    sprite: path.resolve('sprite.svg'),
                     render: {
                         scss: {
-                            dest: path.resolve('./dev/scss/modules/_sprite.scss'),
+                            dest: path.resolve('_sprite.scss'),
                         }
                     }
                 }
             },
         }))
-        .pipe(dest(function (file) {
-            return process.cwd();
-        }));
+        .pipe(gulpIf('*.svg', dest('./dist/img/svg'), dest('./dev/scss/modules')))
 }
 
 const watchTask = () => {
