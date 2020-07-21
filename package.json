@@ -10,7 +10,6 @@
     "@emitty/core": "^2.0.1",
     "@emitty/language-pug": "^2.0.1",
     "browser-sync": "^2.26.10",
-    "del": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^7.0.1",
     "gulp-babel": "^8.0.0",

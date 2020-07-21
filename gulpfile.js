@@ -1,12 +1,12 @@
 const { src, dest, parallel, series, task, watch } = require('gulp');
 
 //utils
-const del = require('del');
 const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
 const gulpIf = require('gulp-if');
 const through2 = require('through2');
 const emitty = require('@emitty/core').configure();
+const path = require('path');
 
 //scss
 const scss = require('gulp-sass');
@@ -156,24 +156,18 @@ const createSvgSprite = () => {
                 symbol: {
                     prefix: '.svg-icon-%s',
                     dimensions: '%s',
-                    sprite: '../sprite.svg',
+                    sprite: path.resolve('./dist/img/svg/sprite.svg'),
                     render: {
                         scss: {
-                            dest: '../../../_sprite.scss',
+                            dest: path.resolve('./dev/scss/modules/_sprite.scss'),
                         }
                     }
                 }
             },
         }))
-        .pipe(dest('./dist/img/svg'));
-}
-const copySvgSpriteScssToDevDirectory = () => {
-    return src('./dist/_sprite.scss')
-        .pipe(dest('./dev/scss/modules'))
-}
-const delSvgSpriteInBuildDirectory = (cb) => {
-    del.sync(['./dist/_sprite.scss']);
-    cb();
+        .pipe(dest(function (file) {
+            return process.cwd();
+        }));
 }
 
 const watchTask = () => {
@@ -200,7 +194,7 @@ const build = parallel(templates, styles, jsCommon);
 
 task('default', watchTasks);
 task('server', server);
-task('sprite', series(createSvgSprite, copySvgSpriteScssToDevDirectory, delSvgSpriteInBuildDirectory));
+task('sprite', createSvgSprite);
 task('css', styles);
 task('js', jsCommon);
 task('templates', templates);
