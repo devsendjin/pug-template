@@ -7,6 +7,7 @@ const gulpIf = require('gulp-if');
 const through2 = require('through2');
 const emitty = require('@emitty/core').configure();
 const path = require('path');
+const plumber = require('gulp-plumber');
 
 //scss
 const scss = require('gulp-sass');
@@ -38,8 +39,9 @@ emitty.language({
 });
 
 const isProd = ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
-const serverEnabled = ['--s', '--serve', '--server'].some(item => process.argv.includes(item));
 const isDev = !isProd;
+const serverEnabled = ['--s', '--serve', '--server'].some(item => process.argv.includes(item));
+const openBrowser = serverEnabled && ['--o', '--open'].some(item => process.argv.includes(item));
 
 const config = {
     isWatchMode: false,
@@ -56,7 +58,7 @@ const server = () => {
             baseDir: './dist',
             directory: true,
         },
-        open: false,
+        open: openBrowser,
         notify: false
     });
 }
@@ -88,6 +90,12 @@ const templates = () => {
         'max_preserve_newlines': 10000
     };
     return src('./dev/templates/*.pug')
+        .pipe(plumber({
+            errorHandler: function (err) {
+                console.log('templates ', err.message);
+                this.end();
+            }
+        }))
         .pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
         .pipe(pug())
         .pipe(htmlbeautify(htmlBeautifyOptions))
@@ -97,6 +105,12 @@ const templates = () => {
 
 const styles = () => {
     return src('./dev/scss/*.scss')
+        .pipe(plumber({
+            errorHandler: function (err) {
+                console.log('styles ', err.message);
+                this.end();
+            }
+        }))
         .pipe(gulpIf(isDev, sourcemaps.init()))
         .pipe(bulkSass())
         .pipe(scss().on('error', scss.logError))
@@ -116,6 +130,12 @@ const jsCommon = () => {
         './dev/js/vendor/jquery.fancybox.min.js',
         './dev/js/common/common.js',
     ])
+        .pipe(plumber({
+            errorHandler: function (err) {
+                console.log('jsCommon ', err.message);
+                this.end();
+            }
+        }))
         .pipe(gulpIf(isDev, sourcemaps.init()))
         .pipe(gulpIf(isProd, babel({
             presets: ['@babel/env']
@@ -129,6 +149,12 @@ const jsCommon = () => {
 
 const jsPages = () => {
     return src(['./dev/js/pages/*.js'])
+        .pipe(plumber({
+            errorHandler: function (err) {
+                console.log('jsPages ', err.message);
+                this.end();
+            }
+        }))
         .pipe(gulpIf(isDev, sourcemaps.init()))
         .pipe(gulpIf(isProd, babel({
             presets: ['@babel/env']
@@ -141,6 +167,12 @@ const jsPages = () => {
 
 const createSvgSprite = () => {
     return src('./dist/img/svg/sprite/*.svg')
+        .pipe(plumber({
+            errorHandler: function (err) {
+                console.log(err.message);
+                this.end();
+            }
+        }))
         // remove all fill, style and stroke declarations in out shapes
         .pipe(cheerio({
             run: function ($) {
