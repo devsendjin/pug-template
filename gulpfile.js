@@ -55,7 +55,7 @@ const config = {
 const server = () => {
     browserSync.init({
         server: {
-            baseDir: './dist',
+            baseDir: './build',
             directory: true,
         },
         open: openBrowser,
@@ -89,7 +89,7 @@ const templates = () => {
         'preserve_newlines': false,
         'max_preserve_newlines': 10000
     };
-    return src('./dev/templates/*.pug')
+    return src('./src/templates/*.pug')
         .pipe(plumber({
             errorHandler: function (err) {
                 console.log('templates ', err.message);
@@ -99,12 +99,12 @@ const templates = () => {
         .pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
         .pipe(pug())
         .pipe(htmlbeautify(htmlBeautifyOptions))
-        .pipe(dest('./dist'))
+        .pipe(dest('./build'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const styles = () => {
-    return src('./dev/scss/*.scss')
+    return src('./src/scss/*.scss')
         .pipe(plumber({
             errorHandler: function (err) {
                 console.log('styles ', err.message);
@@ -120,15 +120,15 @@ const styles = () => {
         .pipe(replace(/[\.\.\/]+img/gmi, '../img')) //заменяем пути к изображениям на правильные
         // .pipe(replace(/url\(["']?(?:\.?\.?\/?)*(?:\w*\/)*(\w+)(.svg|.gif|.png|.jpg|.jpeg)["']?\)/gmi, '"../img/$1$2"')) //заменяем пути к изображениям на правильные
         .pipe(gulpIf(isDev, sourcemaps.write()))
-        .pipe(dest('./dist/css'))
+        .pipe(dest('./build/css'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const jsCommon = () => {
     return src([
-        './dev/js/vendor/jquery.min.js',
-        './dev/js/vendor/jquery.fancybox.min.js',
-        './dev/js/common/common.js',
+        './src/js/vendor/jquery.min.js',
+        './src/js/vendor/jquery.fancybox.min.js',
+        './src/js/common/common.js',
     ])
         .pipe(plumber({
             errorHandler: function (err) {
@@ -143,12 +143,12 @@ const jsCommon = () => {
         .pipe(gulpIf(isProd, uglify()))
         .pipe(concat('bundle.js'))
         .pipe(gulpIf(isDev, sourcemaps.write()))
-        .pipe(dest('./dist/js'))
+        .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const jsPages = () => {
-    return src(['./dev/js/pages/*.js'])
+    return src(['./src/js/pages/*.js'])
         .pipe(plumber({
             errorHandler: function (err) {
                 console.log('jsPages ', err.message);
@@ -161,12 +161,12 @@ const jsPages = () => {
         })))
         .pipe(gulpIf(isProd, uglify()))
         .pipe(gulpIf(isDev, sourcemaps.write()))
-        .pipe(dest('./dist/js'))
+        .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const createSvgSprite = () => {
-    return src('./dist/img/svg/sprite/*.svg')
+    return src('./build/img/svg/sprite/*.svg')
         .pipe(plumber({
             errorHandler: function (err) {
                 console.log(err.message);
@@ -211,18 +211,18 @@ const createSvgSprite = () => {
                 }
             },
         }))
-        .pipe(gulpIf('*.svg', dest('./dist/img/svg'), dest('./dev/scss/modules')))
+        .pipe(gulpIf('*.svg', dest('./build/img/svg'), dest('./src/scss/modules')))
 }
 
 const watchTask = () => {
-    watch('./dev/templates/**/*.pug', templates)
+    watch('./src/templates/**/*.pug', templates)
         .on('all', (event, changed) => {
             // Logs the changed file for the templates task
             config.watch.templates = changed;
         })
-    watch('./dev/js/common/*.js', jsCommon);
-    // watch('./dev/js/pages/*.js', jsPages);
-    watch('./dev/scss/**/*.scss', styles)
+    watch('./src/js/common/*.js', jsCommon);
+    // watch('./src/js/pages/*.js', jsPages);
+    watch('./src/scss/**/*.scss', styles)
 }
 
 // need for templates task
