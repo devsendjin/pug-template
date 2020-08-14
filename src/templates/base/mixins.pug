@@ -3,7 +3,7 @@ mixin space
 
 mixin links
 	.dev-nav
-		- let links = []
+		- let links = [];
 		each link in links
 			a(href= '/' + link + '.html')= link
 		span= links.length
@@ -14,10 +14,9 @@ mixin links
 		return 'https://picsum.photos/' + width + '/' + height + '?random=1' + idx;
 	};
 
--
-	const  randomMinMax = (min, max) => {
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
+-	const  randomMinMax = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+-	const  randomFromMinus1ToPlus1 = () => ((Math.random() - 0.5) * 2).toFixed(2);
 
 mixin testBlock
 	div(style="width: 100%; height: 100%; border: 1px solid #000; background-color: rgba(210, 210, 210, 0.97);")

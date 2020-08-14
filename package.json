@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Comfortable gulp template for creating html pages faster than usually",
   "main": "gulpfile.js",
+  "scripts": {
+    "watch": "cross-env NODE_ENV=development webpack",
+    "build": "cross-env NODE_ENV=production webpack"
+  },
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.10.5",
@@ -17,23 +21,26 @@
     "gulp-concat": "^2.6.1",
     "gulp-copy": "^4.0.1",
     "gulp-csso": "^4.0.1",
-    "gulp-group-css-media-queries": "^1.2.2",
     "gulp-html-beautify": "^1.0.1",
     "gulp-if": "^3.0.0",
     "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
     "gulp-pug": "^4.0.1",
+    "gulp-remember": "^1.0.1",
     "gulp-replace": "^1.0.0",
     "gulp-sass": "^4.1.0",
     "gulp-sass-bulk-import": "^1.0.1",
+    "gulp-size": "^3.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-svg-sprite": "^1.5.0",
     "gulp-uglify": "^3.0.2",
+    "postcss-inline-svg": "^4.1.0",
+    "postcss-sort-media-queries": "^1.7.25",
     "through2": "^4.0.2"
   },
-  "scripts": {},
   "repository": {
     "type": "git",
-    "url": "qwe"
+    "url": ""
   },
   "keywords": [
     "pug",

@@ -1,0 +1,274 @@
+@mixin skeleton {
+  *:not(path):not(g) {
+    color: hsl(0, 0%, 0%) !important;
+    text-shadow: none !important;
+    background: hsl(0, 0%, 100%) !important;
+    outline: 1px solid hsla(0, 0%, 0%, 0.5) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
+
+@function randomizeColor(){
+  $color: (
+    octal: (
+      red: random(256)-1,
+      green: random(256)-1,
+      blue: random(256)-1
+    ),
+    percent: (
+      red: random(101)-1,
+      green: random(101)-1,
+      blue: random(101)-1,
+      saturation: random(101)-1,
+      light: random(101)-1
+    ),
+    deg: (
+      hue: random(361)-1
+    ),
+    fraction: (
+      alpha: random(100)/100
+    )
+  );
+  @return $color;
+}
+@function color($base, $component) {
+  $color: randomizeColor();
+  @return map-get(map-get($color, $base), $component);
+}
+@function getRandomColor($format: NULL) {
+  @if $format == "hex" {
+    @return rgb(color(octal, red), color(octal, green), color(octal, blue));
+  }
+  @else if $format == "rgb" {
+    @return unquote("rgb(#{color(octal, red)}, #{color(octal, green)}, #{color(octal, blue)})");
+  }
+  @else if $format == "%rgb" {
+    @return unquote("rgb(#{color(percent, red)}%, #{color(percent, green)}%, #{color(percent, blue)}%)");
+  }
+  @else if $format == "rgba" {
+    @return unquote("rgba(#{color(octal, red)}, #{color(octal, green)}, #{color(octal, blue)}, #{color(fraction, alpha)})");
+  }
+  @else if $format == "%rgba" {
+    @return unquote("rgba(#{color(percent, red)}%, #{color(percent, green)}%, #{color(percent, blue)}%, #{color(fraction, alpha)})");
+  }
+  @else if $format == "hsl" {
+    @return unquote("hsl(#{color(deg, hue)}, #{color(percent, saturation)}%, #{color(percent, light)}%)");
+  }
+  @else if $format == "hsla" {
+    @return unquote("hsla(#{color(deg, hue)}, #{color(percent, saturation)}%, #{color(percent, light)}%, #{color(fraction, alpha)})");
+  }
+  @else {
+    @return nth($named-colors, random(147));
+  }
+}
+
+$debug-outline: false !default;
+$debug-depth: false !default;
+
+@if $debug-outline == true {
+  body { outline: 1px solid getRandomColor(hex) !important; }
+  article { outline: 1px solid getRandomColor(hex) !important; }
+  nav { outline: 1px solid getRandomColor(hex) !important; }
+  aside { outline: 1px solid getRandomColor(hex) !important; }
+  section { outline: 1px solid getRandomColor(hex) !important; }
+  header { outline: 1px solid getRandomColor(hex) !important; }
+  footer { outline: 1px solid getRandomColor(hex) !important; }
+  h1 { outline: 1px solid getRandomColor(hex) !important; }
+  h2 { outline: 1px solid getRandomColor(hex) !important; }
+  h3 { outline: 1px solid getRandomColor(hex) !important; }
+  h4 { outline: 1px solid getRandomColor(hex) !important; }
+  h5 { outline: 1px solid getRandomColor(hex) !important; }
+  h6 { outline: 1px solid getRandomColor(hex) !important; }
+  main { outline: 1px solid getRandomColor(hex) !important; }
+  address { outline: 1px solid getRandomColor(hex) !important; }
+  div { outline: 1px solid getRandomColor(hex) !important; }
+  p { outline: 1px solid getRandomColor(hex) !important; }
+  hr { outline: 1px solid getRandomColor(hex) !important; }
+  pre { outline: 1px solid getRandomColor(hex) !important; }
+  blockquote { outline: 1px solid getRandomColor(hex) !important; }
+  ol { outline: 1px solid getRandomColor(hex) !important; }
+  ul { outline: 1px solid getRandomColor(hex) !important; }
+  li { outline: 1px solid getRandomColor(hex) !important; }
+  dl { outline: 1px solid getRandomColor(hex) !important; }
+  dt { outline: 1px solid getRandomColor(hex) !important; }
+  dd { outline: 1px solid getRandomColor(hex) !important; }
+  figure { outline: 1px solid getRandomColor(hex) !important; }
+  figcaption { outline: 1px solid getRandomColor(hex) !important; }
+  table { outline: 1px solid getRandomColor(hex) !important; }
+  caption { outline: 1px solid getRandomColor(hex) !important; }
+  thead { outline: 1px solid getRandomColor(hex) !important; }
+  tbody { outline: 1px solid getRandomColor(hex) !important; }
+  tfoot { outline: 1px solid getRandomColor(hex) !important; }
+  tr { outline: 1px solid getRandomColor(hex) !important; }
+  th { outline: 1px solid getRandomColor(hex) !important; }
+  td { outline: 1px solid getRandomColor(hex) !important; }
+  col { outline: 1px solid getRandomColor(hex) !important; }
+  colgroup { outline: 1px solid getRandomColor(hex) !important; }
+  button { outline: 1px solid getRandomColor(hex) !important; }
+  datalist { outline: 1px solid getRandomColor(hex) !important; }
+  fieldset { outline: 1px solid getRandomColor(hex) !important; }
+  form { outline: 1px solid getRandomColor(hex) !important; }
+  input { outline: 1px solid getRandomColor(hex) !important; }
+  keygen { outline: 1px solid getRandomColor(hex) !important; }
+  label { outline: 1px solid getRandomColor(hex) !important; }
+  legend { outline: 1px solid getRandomColor(hex) !important; }
+  meter { outline: 1px solid getRandomColor(hex) !important; }
+  optgroup { outline: 1px solid getRandomColor(hex) !important; }
+  option { outline: 1px solid getRandomColor(hex) !important; }
+  output { outline: 1px solid getRandomColor(hex) !important; }
+  progress { outline: 1px solid getRandomColor(hex) !important; }
+  select { outline: 1px solid getRandomColor(hex) !important; }
+  textarea { outline: 1px solid getRandomColor(hex) !important; }
+  details { outline: 1px solid getRandomColor(hex) !important; }
+  summary { outline: 1px solid getRandomColor(hex) !important; }
+  command { outline: 1px solid getRandomColor(hex) !important; }
+  menu { outline: 1px solid getRandomColor(hex) !important; }
+  del { outline: 1px solid getRandomColor(hex) !important; }
+  ins { outline: 1px solid getRandomColor(hex) !important; }
+  img { outline: 1px solid getRandomColor(hex) !important; }
+  iframe { outline: 1px solid getRandomColor(hex) !important; }
+  embed { outline: 1px solid getRandomColor(hex) !important; }
+  object { outline: 1px solid getRandomColor(hex) !important; }
+  param { outline: 1px solid getRandomColor(hex) !important; }
+  video { outline: 1px solid getRandomColor(hex) !important; }
+  audio { outline: 1px solid getRandomColor(hex) !important; }
+  source { outline: 1px solid getRandomColor(hex) !important; }
+  canvas { outline: 1px solid getRandomColor(hex) !important; }
+  track { outline: 1px solid getRandomColor(hex) !important; }
+  map { outline: 1px solid getRandomColor(hex) !important; }
+  area { outline: 1px solid getRandomColor(hex) !important; }
+  a { outline: 1px solid getRandomColor(hex) !important; }
+  em { outline: 1px solid getRandomColor(hex) !important; }
+  strong { outline: 1px solid getRandomColor(hex) !important; }
+  i { outline: 1px solid getRandomColor(hex) !important; }
+  b { outline: 1px solid getRandomColor(hex) !important; }
+  u { outline: 1px solid getRandomColor(hex) !important; }
+  s { outline: 1px solid getRandomColor(hex) !important; }
+  small { outline: 1px solid getRandomColor(hex) !important; }
+  abbr { outline: 1px solid getRandomColor(hex) !important; }
+  q { outline: 1px solid getRandomColor(hex) !important; }
+  cite { outline: 1px solid getRandomColor(hex) !important; }
+  dfn { outline: 1px solid getRandomColor(hex) !important; }
+  sub { outline: 1px solid getRandomColor(hex) !important; }
+  sup { outline: 1px solid getRandomColor(hex) !important; }
+  time { outline: 1px solid getRandomColor(hex) !important; }
+  code { outline: 1px solid getRandomColor(hex) !important; }
+  kbd { outline: 1px solid getRandomColor(hex) !important; }
+  samp { outline: 1px solid getRandomColor(hex) !important; }
+  var { outline: 1px solid getRandomColor(hex) !important; }
+  mark { outline: 1px solid getRandomColor(hex) !important; }
+  bdi { outline: 1px solid getRandomColor(hex) !important; }
+  bdo { outline: 1px solid getRandomColor(hex) !important; }
+  ruby { outline: 1px solid getRandomColor(hex) !important; }
+  rt { outline: 1px solid getRandomColor(hex) !important; }
+  rp { outline: 1px solid getRandomColor(hex) !important; }
+  span { outline: 1px solid getRandomColor(hex) !important; }
+  br { outline: 1px solid getRandomColor(hex) !important; }
+  wbr { outline: 1px solid getRandomColor(hex) !important; }
+}
+
+@if $debug-depth == true {
+  $box-shadow-color: rgba(0,0,0,.6);
+  $background-color: rgba(255,255,255,0.25);
+
+  body { box-shadow: 0 0 1rem $box-shadow-color; background-color: rgba(17,34,99,0.25) }
+  article { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  nav { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  aside { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  section { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  header { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  footer { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  h1 { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  h2 { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  h3 { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  h4 { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  h5 { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  h6 { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  main { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  address { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  div { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  p { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  hr { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  pre { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  blockquote { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  ol { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  ul { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  li { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  dl { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  dt { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  dd { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  figure { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  figcaption { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  table { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  caption { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  thead { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  tbody { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  tfoot { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  tr { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  th { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  td { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  col { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  colgroup { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  button { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  datalist { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  fieldset { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  form { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  input { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  keygen { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  label { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  legend { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  meter { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  optgroup { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  option { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  output { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  progress { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  select { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  textarea { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  details { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  summary { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  command { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  menu { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  del { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  ins { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  img { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  iframe { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  embed { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  object { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  param { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  video { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  audio { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  source { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  canvas { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  track { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  map { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  area { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  a { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  em { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  strong { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  i { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  b { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  u { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  s { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  small { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  abbr { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  q { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  cite { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  dfn { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  sub { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  sup { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  time { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  code { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  kbd { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  samp { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  var { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  mark { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  bdi { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  bdo { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  ruby { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  rt { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  rp { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  span { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  br { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+  wbr { box-shadow: 0 0 1rem $box-shadow-color; background-color: $background-color }
+}

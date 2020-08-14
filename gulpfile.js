@@ -1,4 +1,4 @@
-const { src, dest, parallel, series, task, watch } = require('gulp');
+const { src, dest, parallel, series, task, watch, lastRun } = require('gulp');
 
 //utils
 const sourcemaps = require('gulp-sourcemaps');
@@ -8,11 +8,14 @@ const through2 = require('through2');
 const emitty = require('@emitty/core').configure();
 const path = require('path');
 const plumber = require('gulp-plumber');
+const size = require('gulp-size');
+const remember = require('gulp-remember');
 
 //scss
+const postcss = require('gulp-postcss');
+const inlineSvg = require('postcss-inline-svg'); // https://www.npmjs.com/package/postcss-inline-svg
+const sortMediaQueries = require('postcss-sort-media-queries');
 const scss = require('gulp-sass');
-const autoprefixer = require('gulp-autoprefixer');
-const gcmq = require('gulp-group-css-media-queries');
 const csso = require('gulp-csso');
 const bulkSass = require('gulp-sass-bulk-import');
 
@@ -99,6 +102,7 @@ const templates = () => {
         .pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
         .pipe(pug())
         .pipe(htmlbeautify(htmlBeautifyOptions))
+        .pipe(gulpIf(isProd, size({ showFiles: true, title: 'HTML' })))
         .pipe(dest('./build'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -114,12 +118,18 @@ const styles = () => {
         .pipe(gulpIf(isDev, sourcemaps.init()))
         .pipe(bulkSass())
         .pipe(scss().on('error', scss.logError))
-        .pipe(gcmq()) // переносит и объединяет все медиа запросы вниз css файла
+        .pipe(postcss([
+            inlineSvg({ removeFill: true, removeStroke: true }),
+            sortMediaQueries({
+                sort: 'desktop-first'
+            })
+        ]))
         .pipe(autoprefixer())
         .pipe(csso({ restructure: true }))
-        .pipe(replace(/[\.\.\/]+img/gmi, '../img')) //заменяем пути к изображениям на правильные
+        // .pipe(replace(/[\.\.\/]+img/gmi, '../img')) //заменяем пути к изображениям на правильные
         // .pipe(replace(/url\(["']?(?:\.?\.?\/?)*(?:\w*\/)*(\w+)(.svg|.gif|.png|.jpg|.jpeg)["']?\)/gmi, '"../img/$1$2"')) //заменяем пути к изображениям на правильные
         .pipe(gulpIf(isDev, sourcemaps.write()))
+        .pipe(gulpIf(isProd, size({ showFiles: true, title: 'CSS' })))
         .pipe(dest('./build/css'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -143,6 +153,7 @@ const jsCommon = () => {
         .pipe(gulpIf(isProd, uglify()))
         .pipe(concat('bundle.js'))
         .pipe(gulpIf(isDev, sourcemaps.write()))
+        .pipe(gulpIf(isProd, size({ showFiles: true, title: 'JS' })))
         .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -163,6 +174,21 @@ const jsPages = () => {
         .pipe(gulpIf(isDev, sourcemaps.write()))
         .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
+}
+
+const copyJs = () => {
+    return src(['./src/js/copyToBuild/*'], { since: lastRun(copyJs) })
+        .pipe(remember('copy_js'))
+        .pipe(dest('./build/js'))
+};
+const copyImages = () => {
+    return src([
+        './src/img/**/*',
+        '!./src/img/svg/sprite',
+        '!./src/img/svg/sprite/*'
+    ], { base: 'src', since: lastRun(copyImages) })
+        .pipe(remember('copy_images'))
+        .pipe(dest('./build'))
 }
 
 const createSvgSprite = () => {
@@ -186,32 +212,19 @@ const createSvgSprite = () => {
         .pipe(replace('&gt;', '>'))
         .pipe(svgSprite({
             mode: {
-                // if we need bg svg background image
-                // css: {
-                //     dest: './',
-                //     prefix: '.svg-icon-%s',
-                //     dimensions: true,
-                //     sprite: 'sprite.svg',
-                //     bust: false,
-                //     render: {
-                //         scss: {
-                //             dest: '_sprite.scss',
-                //         }
-                //     }
-                // },
                 symbol: {
                     prefix: '.svg-icon-%s',
                     dimensions: '%s',
-                    sprite: path.resolve('sprite.svg'),
+                    sprite: '../sprite.svg',
                     render: {
                         scss: {
-                            dest: path.resolve('_sprite.scss'),
+                            dest: '../../../scss/modules/_sprite.scss',
                         }
                     }
                 }
             },
         }))
-        .pipe(gulpIf('*.svg', dest('./build/img/svg'), dest('./src/scss/modules')))
+        .pipe(dest('./src/img/svg'))
 }
 
 const watchTask = () => {
@@ -223,6 +236,7 @@ const watchTask = () => {
     watch('./src/js/common/*.js', jsCommon);
     // watch('./src/js/pages/*.js', jsPages);
     watch('./src/scss/**/*.scss', styles)
+    watch('./src/img/**/*', copyImages);
 }
 
 // need for templates task
@@ -234,12 +248,14 @@ const watchInit = (done) => {
 
 const watchTasks = serverEnabled ? parallel(series(watchInit, templates, watchTask), server) : series(watchInit, templates, watchTask);
 
-const build = parallel(templates, styles, jsCommon);
+const build = parallel(templates, styles, jsCommon, copyImages, copyJs);
 
 task('default', watchTasks);
 task('server', server);
-task('sprite', createSvgSprite);
+task('sprite', series(createSvgSprite, copyImages));
 task('css', styles);
 task('js', jsCommon);
+task('copy:img', copyImages);
+task('copy:js', copyJs);
 task('templates', templates);
 task('build', build);

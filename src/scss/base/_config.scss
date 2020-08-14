@@ -1,5 +1,22 @@
+//debug
+//$debug-outline: true;
+
+$isDevMode: false;
+
 //fonts
-$montserrat: 'Montserrat', sans-serif;
+$system-fonts: system-ui,
+  /* macOS 10.11-10.12 */ -apple-system,
+  /* Windows 6+ */ Segoe UI,
+  /* Android 4+ */ Roboto,
+  /* Ubuntu 10.10+ */ Ubuntu,
+  /* Gnome 3+ */ Cantarell,
+  /* KDE Plasma 5+ */ Noto Sans,
+  /* fallback */ sans-serif,
+  /* macOS emoji */ "Apple Color Emoji",
+  /* Windows emoji */ "Segoe UI Emoji",
+  /* Windows emoji */ "Segoe UI Symbol",
+  /* Linux emoji */ "Noto Color Emoji";
+$montserrat: 'Montserrat', $system-fonts;
 
 
 //colors
@@ -12,8 +29,4 @@ $gutter: 40px !default;
 $offset: 15px !default;
 
 //easings
-//$easeInOutQuint: cubic-bezier(0.86, 0, 0.07, 1);
-//$switchEasing: cubic-bezier(.86, 0, .07, 1);
-//$easeInOutBack: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-//$easeOutExpo: cubic-bezier(0.16, 1, 0.3, 1);
-//$easeInOutExpo: cubic-bezier(0.87, 0, 0.13, 1);
+@import 'easings';

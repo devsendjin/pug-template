@@ -28,7 +28,7 @@ html(lang='ru')
           color: #f00;
         }
 
-  body(class= pageClassName + ' lazyload-fade')
+  body(class='lazyload-fade')&attributes(bodyAttributes)
     if (isDev)
       a(href='/build').dev-link Build directory
 
