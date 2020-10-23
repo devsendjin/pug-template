@@ -1,7 +1,7 @@
 //debug
 //$debug-outline: true;
 
-$isDevMode: false;
+$isDevelopmentMode: false;
 
 //fonts
 $system-fonts: system-ui,
@@ -20,7 +20,7 @@ $montserrat: 'Montserrat', $system-fonts;
 
 
 //colors
-$black: #000000;
+$black: #000;
 
 
 //variables for grid mixins

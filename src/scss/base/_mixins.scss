@@ -1,4 +1,4 @@
-%visually-hidden {
+@mixin visually-hidden {
 	clip: rect(0 0 0 0);
 	clip-path: inset(50%);
 	overflow: hidden;
@@ -8,7 +8,7 @@
 	width: 1px;
 }
 
-%unselectable {
+@mixin unselectable {
 	-webkit-touch-callout: none; /* iOS Safari */
 	-webkit-user-select: none;   /* Chrome/Safari/Opera */
 	-khtml-user-select: none;    /* Konqueror */

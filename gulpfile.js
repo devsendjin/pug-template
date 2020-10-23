@@ -1,4 +1,5 @@
 const { src, dest, parallel, series, task, watch, lastRun } = require('gulp');
+const webpackStream = require('webpack-stream');
 
 //utils
 const sourcemaps = require('gulp-sourcemaps');
@@ -6,10 +7,10 @@ const concat = require('gulp-concat');
 const gulpIf = require('gulp-if');
 const through2 = require('through2');
 const emitty = require('@emitty/core').configure();
-const path = require('path');
 const plumber = require('gulp-plumber');
 const size = require('gulp-size');
 const remember = require('gulp-remember');
+const merge = require('merge-stream');
 
 //scss
 const postcss = require('gulp-postcss');
@@ -24,8 +25,9 @@ const htmlbeautify = require('gulp-html-beautify');
 const pug = require('gulp-pug');
 
 //js
-const uglify = require('gulp-uglify');
+const TerserPlugin = require('terser-webpack-plugin');
 const babel = require('gulp-babel');
+
 
 //svg
 const svgSprite = require('gulp-svg-sprite');
@@ -41,8 +43,10 @@ emitty.language({
     parser: require('@emitty/language-pug').parse
 });
 
-const isProd = ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
-const isDev = !isProd;
+const MODE = process.env.NODE_ENV || 'development';
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
+
 const serverEnabled = ['--s', '--serve', '--server'].some(item => process.argv.includes(item));
 const openBrowser = serverEnabled && ['--o', '--open'].some(item => process.argv.includes(item));
 
@@ -102,7 +106,7 @@ const templates = () => {
         .pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
         .pipe(pug())
         .pipe(htmlbeautify(htmlBeautifyOptions))
-        .pipe(gulpIf(isProd, size({ showFiles: true, title: 'HTML' })))
+        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'HTML' })))
         .pipe(dest('./build'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -115,22 +119,87 @@ const styles = () => {
                 this.end();
             }
         }))
-        .pipe(gulpIf(isDev, sourcemaps.init()))
+        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
         .pipe(bulkSass())
         .pipe(scss().on('error', scss.logError))
         .pipe(postcss([
+            require('autoprefixer')(),
             inlineSvg({ removeFill: true, removeStroke: true }),
             sortMediaQueries({
                 sort: 'desktop-first'
             })
         ]))
-        .pipe(autoprefixer())
         .pipe(csso({ restructure: true }))
         // .pipe(replace(/[\.\.\/]+img/gmi, '../img')) //заменяем пути к изображениям на правильные
         // .pipe(replace(/url\(["']?(?:\.?\.?\/?)*(?:\w*\/)*(\w+)(.svg|.gif|.png|.jpg|.jpeg)["']?\)/gmi, '"../img/$1$2"')) //заменяем пути к изображениям на правильные
-        .pipe(gulpIf(isDev, sourcemaps.write()))
-        .pipe(gulpIf(isProd, size({ showFiles: true, title: 'CSS' })))
+        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
+        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'CSS' })))
         .pipe(dest('./build/css'))
+        .pipe(gulpIf(serverEnabled, browserSync.stream()));
+}
+
+const scripts = () => {
+    const jsFiles = [
+        { entry: 'bundle', path: './src/js/common/bundle.js' },
+        { entry: 'page-example', path: './src/js/common/page-example.js' },
+    ];
+
+    return src(jsFiles.map(item => item.path), { since: lastRun(scripts) })
+        .pipe(remember('scripts'))
+        .pipe(plumber({
+            errorHandler: function (err) {
+                console.log('scripts ', err.message);
+                this.end();
+            }
+        }))
+        .pipe(webpackStream({
+            mode: MODE,
+            entry: jsFiles.reduce((accumulator, currentValue) => {
+                return Object.assign(accumulator, { [currentValue.entry]: currentValue.path })
+            }, {}),
+            output: {
+                filename: '[name].js',
+            },
+            devtool: false,
+            optimization: isProduction ? {
+                minimize: true,
+                minimizer: [
+                    new TerserPlugin({
+                        terserOptions: {
+                            warnings: false,
+                            compress: {
+                                comparisons: false,
+                            },
+                            parse: {},
+                            mangle: true,
+                            output: {
+                                comments: false,
+                                ascii_only: true,
+                            },
+                        },
+                        extractComments: false,
+                        sourceMap: false,
+                    }),
+                ],
+                nodeEnv: MODE,
+                sideEffects: true,
+                concatenateModules: true,
+            } : {},
+            module: {
+                rules: [
+                    {
+                        test: /\.(js)$/,
+                        exclude: /(node_modules)/,
+                        loader: 'babel-loader',
+                        query: {
+                            presets: ['@babel/preset-env']
+                        }
+                    }
+                ]
+            },
+        }))
+        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'JS' })))
+        .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
@@ -146,14 +215,13 @@ const jsCommon = () => {
                 this.end();
             }
         }))
-        .pipe(gulpIf(isDev, sourcemaps.init()))
-        .pipe(gulpIf(isProd, babel({
+        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
+        .pipe(gulpIf(isProduction, babel({
             presets: ['@babel/env']
         })))
-        .pipe(gulpIf(isProd, uglify()))
         .pipe(concat('bundle.js'))
-        .pipe(gulpIf(isDev, sourcemaps.write()))
-        .pipe(gulpIf(isProd, size({ showFiles: true, title: 'JS' })))
+        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
+        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'JS' })))
         .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -166,21 +234,15 @@ const jsPages = () => {
                 this.end();
             }
         }))
-        .pipe(gulpIf(isDev, sourcemaps.init()))
-        .pipe(gulpIf(isProd, babel({
+        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
+        .pipe(gulpIf(isProduction, babel({
             presets: ['@babel/env']
         })))
-        .pipe(gulpIf(isProd, uglify()))
-        .pipe(gulpIf(isDev, sourcemaps.write()))
+        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
         .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
-const copyJs = () => {
-    return src(['./src/js/copyToBuild/*'], { since: lastRun(copyJs) })
-        .pipe(remember('copy_js'))
-        .pipe(dest('./build/js'))
-};
 const copyImages = () => {
     return src([
         './src/img/**/*',
@@ -190,6 +252,14 @@ const copyImages = () => {
         .pipe(remember('copy_images'))
         .pipe(dest('./build'))
 }
+
+const copyFiles = () => {
+    const js = src('./src/js/vendor/lazysizes.min.js', { since: lastRun(copyFiles) })
+                .pipe(dest('./build/js'));
+    /*const jquery = src('jquery.cookie/jquery.cookie.js')
+                     .pipe(dest('public/jquery'));*/
+    return merge(js);
+};
 
 const createSvgSprite = () => {
     return src('./build/img/svg/sprite/*.svg')
@@ -233,8 +303,7 @@ const watchTask = () => {
             // Logs the changed file for the templates task
             config.watch.templates = changed;
         })
-    watch('./src/js/common/*.js', jsCommon);
-    // watch('./src/js/pages/*.js', jsPages);
+    watch('./src/js/common/*.js', scripts);
     watch('./src/scss/**/*.scss', styles)
     watch('./src/img/**/*', copyImages);
 }
@@ -246,16 +315,16 @@ const watchInit = (done) => {
     done();
 }
 
-const watchTasks = serverEnabled ? parallel(series(watchInit, templates, watchTask), server) : series(watchInit, templates, watchTask);
+const defaultTask = serverEnabled ? parallel(series(watchInit, templates, watchTask), server) : series(watchInit, templates, watchTask);
 
-const build = parallel(templates, styles, jsCommon, copyImages, copyJs);
+const build = parallel(templates, styles, scripts, copyImages, copyFiles);
 
-task('default', watchTasks);
+task('default', defaultTask);
 task('server', server);
 task('sprite', series(createSvgSprite, copyImages));
 task('css', styles);
-task('js', jsCommon);
+task('js', scripts);
 task('copy:img', copyImages);
-task('copy:js', copyJs);
+task('copy:files', copyFiles);
 task('templates', templates);
 task('build', build);

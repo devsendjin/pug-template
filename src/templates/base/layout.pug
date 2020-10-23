@@ -17,7 +17,7 @@ html(lang='ru')
     script(src='./js/lazysizes.min.js', async='')
     title Awesome | #{pageTitle}
 
-    if (isDev)
+    if (isDevelopment)
       style.
         .dev-link {
           position: absolute;
@@ -29,7 +29,7 @@ html(lang='ru')
         }
 
   body(class='lazyload-fade')&attributes(bodyAttributes)
-    if (isDev)
+    if (isDevelopment)
       a(href='/build').dev-link Build directory
 
     include ../sections/header

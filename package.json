@@ -4,8 +4,10 @@
   "description": "Comfortable gulp template for creating html pages faster than usually",
   "main": "gulpfile.js",
   "scripts": {
-    "watch": "cross-env NODE_ENV=development webpack",
-    "build": "cross-env NODE_ENV=production webpack"
+    "dev:watch": "cross-env NODE_ENV=development gulp --s --o",
+    "dev:build": "cross-env NODE_ENV=development gulp build",
+    "prod:watch": "cross-env NODE_ENV=production gulp --s --o",
+    "prod:build": "cross-env NODE_ENV=production gulp build"
   },
   "dependencies": {},
   "devDependencies": {
@@ -13,9 +15,11 @@
     "@babel/preset-env": "^7.10.4",
     "@emitty/core": "^2.0.1",
     "@emitty/language-pug": "^2.0.1",
+    "autoprefixer": "^9.8.6",
+    "babel-loader": "^8.1.0",
     "browser-sync": "^2.26.10",
+    "cross-env": "^7.0.2",
     "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^7.0.1",
     "gulp-babel": "^8.0.0",
     "gulp-cheerio": "^1.0.0",
     "gulp-concat": "^2.6.1",
@@ -33,19 +37,25 @@
     "gulp-size": "^3.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-svg-sprite": "^1.5.0",
-    "gulp-uglify": "^3.0.2",
+    "merge-stream": "^2.0.0",
     "postcss-inline-svg": "^4.1.0",
     "postcss-sort-media-queries": "^1.7.25",
-    "through2": "^4.0.2"
+    "terser-webpack-plugin": "^4.2.3",
+    "through2": "^4.0.2",
+    "webpack": "^4.43.0",
+    "webpack-stream": "^6.1.0"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/devsendjin/pug-template.git"
   },
   "keywords": [
     "pug",
     "gulp",
     "html"
+  ],
+  "browserslist": [
+    "defaults"
   ],
   "author": "Anatoliy Skichko",
   "license": "ISC"

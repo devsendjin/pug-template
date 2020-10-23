@@ -1,0 +1,14 @@
+extends base/layout
+
+append config
+  -
+    pageTitle = 'Example';
+    bodyAttributes.class = 'page-example'
+
+block content
+  main.main
+    .container
+      h2 page-example
+
+append scripts
+  script(src="./js/page-example.js")

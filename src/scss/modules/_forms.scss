@@ -32,7 +32,7 @@
 
     &.checkbox-holder {
       .checkbox {
-        @extend %visually-hidden;
+        @include visually-hidden;
       }
     }
 
