@@ -1,7 +1,9 @@
 # Template for markup
 Compiling `pug` templates realized with [incremental compilation](https://github.com/mrmlnc/emitty).
 
-About concept of [incremental compilation](https://canonium.com/articles/emitty/).
+About the concept of [incremental compilation](https://canonium.com/articles/emitty/).
+
+* [UpCss](https://github.com/nepster-web/UpCss/) - css methodology/architecture used in project
 
 | Gulp task | Description |
 | ------ | ------ |
@@ -19,13 +21,13 @@ About concept of [incremental compilation](https://canonium.com/articles/emitty/
 | ------ | ------ |
 | `--s`, `--serve`, `--server` | enable [browsersync](https://www.browsersync.io/) |
 | `--p`, `--prod`, `--production` | with minified styles and scripts |
-| `--pug-dev`, `--pug-development` | development mode inside *pug* templates |
+| `--pug-d`, `--pug-dev`, `--pug-development` | development mode inside *pug* templates |
 | `--pug-p`, `--pug-prod`, `--pug-production` | production mode inside *pug* templates |
 
 
 | NPM command | Description |
 | ------ | ------ |
 | `dev:watch` | development mode with enabled server [browsersync](https://www.browsersync.io/) |
-| `prod:watch` | production mode with enabled server [browsersync](https://www.browsersync.io/) |
 | `dev:build` | build without minified styles and scripts
+| `prod:watch` | production mode with enabled server [browsersync](https://www.browsersync.io/) |
 | `prod:build` | build with minified styles and scripts

@@ -44,11 +44,11 @@ emitty.language({
 });
 
 const MODE = process.env.NODE_ENV || 'development';
-const isDevelopment = process.env.NODE_ENV === 'development';
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = (process.env.NODE_ENV === 'production') || ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
+const isDevelopment = process.env.NODE_ENV === 'development' || ['--d', '--dev', '--development'].some(item => process.argv.includes(item));
 
 const serverEnabled = ['--s', '--serve', '--server'].some(item => process.argv.includes(item));
-const openBrowser = serverEnabled && ['--o', '--open'].some(item => process.argv.includes(item));
+const shouldOpenBrowser = serverEnabled && ['--o', '--open'].some(item => process.argv.includes(item));
 
 const config = {
     isWatchMode: false,
@@ -65,7 +65,7 @@ const server = () => {
             baseDir: './build',
             directory: true,
         },
-        open: openBrowser,
+        open: shouldOpenBrowser,
         notify: false
     });
 }
@@ -100,7 +100,7 @@ const templates = () => {
         .pipe(plumber({
             errorHandler: function (err) {
                 console.log('templates ', err.message);
-                this.end();
+                this.emit('end');
             }
         }))
         .pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
