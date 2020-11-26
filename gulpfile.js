@@ -130,8 +130,8 @@ const styles = () => {
             })
         ]))
         .pipe(csso({ restructure: true }))
-        // .pipe(replace(/[\.\.\/]+img/gmi, '../img')) //заменяем пути к изображениям на правильные
-        // .pipe(replace(/url\(["']?(?:\.?\.?\/?)*(?:\w*\/)*(\w+)(.svg|.gif|.png|.jpg|.jpeg)["']?\)/gmi, '"../img/$1$2"')) //заменяем пути к изображениям на правильные
+        // .pipe(replace(/[\.\.\/]+images/gmi, '../img')) //заменяем пути к изображениям на правильные
+        // .pipe(replace(/url\(["']?(?:\.?\.?\/?)*(?:\w*\/)*(\w+)(.svg|.gif|.png|.jpg|.jpeg)["']?\)/gmi, '"../images/$1$2"')) //заменяем пути к изображениям на правильные
         .pipe(gulpIf(isDevelopment, sourcemaps.write()))
         .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'CSS' })))
         .pipe(dest('./build/css'))
@@ -245,9 +245,9 @@ const jsPages = () => {
 
 const copyImages = () => {
     return src([
-        './src/img/**/*',
-        '!./src/img/svg/sprite',
-        '!./src/img/svg/sprite/*'
+        './src/images/**/*',
+        '!./src/images/svg/sprite',
+        '!./src/images/svg/sprite/*'
     ], { base: 'src', since: lastRun(copyImages) })
         .pipe(remember('copy_images'))
         .pipe(dest('./build'))
@@ -256,13 +256,13 @@ const copyImages = () => {
 const copyFiles = () => {
     const js = src('./src/js/vendor/lazysizes.min.js', { since: lastRun(copyFiles) })
                 .pipe(dest('./build/js'));
-    /*const jquery = src('jquery.cookie/jquery.cookie.js')
-                     .pipe(dest('public/jquery'));*/
-    return merge(js);
+    const favicons = src('./src/favicons/*')
+                     .pipe(dest('build/favicons'));
+    return merge(js, favicons);
 };
 
 const createSvgSprite = () => {
-    return src('./build/img/svg/sprite/*.svg')
+    return src('./build/images/svg/sprite/*.svg')
         .pipe(plumber({
             errorHandler: function (err) {
                 console.log(err.message);
@@ -294,7 +294,7 @@ const createSvgSprite = () => {
                 }
             },
         }))
-        .pipe(dest('./src/img/svg'))
+        .pipe(dest('./src/images/svg'))
 }
 
 const watchTask = () => {
@@ -305,7 +305,7 @@ const watchTask = () => {
         })
     watch('./src/js/common/*.js', scripts);
     watch('./src/scss/**/*.scss', styles)
-    watch('./src/img/**/*', copyImages);
+    watch('./src/images/**/*', copyImages);
 }
 
 // need for templates task
