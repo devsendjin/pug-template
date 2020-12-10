@@ -4,10 +4,10 @@
   "description": "Comfortable gulp template for creating html pages faster than usually",
   "main": "gulpfile.js",
   "scripts": {
-    "dev:watch": "cross-env NODE_ENV=development gulp --s --o",
-    "dev:build": "cross-env NODE_ENV=development gulp build",
-    "prod:watch": "cross-env NODE_ENV=production gulp --s --o",
-    "prod:build": "cross-env NODE_ENV=production gulp build"
+    "dev:watch": "cross-env NODE_ENV=development gulp --s --o --unhandled-rejections=strict",
+    "dev:build": "cross-env NODE_ENV=development gulp build --unhandled-rejections=strict",
+    "prod:watch": "cross-env NODE_ENV=production gulp --s --o --unhandled-rejections=strict",
+    "prod:build": "cross-env NODE_ENV=production gulp build --unhandled-rejections=strict"
   },
   "dependencies": {},
   "devDependencies": {
