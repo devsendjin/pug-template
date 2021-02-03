@@ -22,7 +22,7 @@ const bulkSass = require('gulp-sass-bulk-import');
 
 //html
 const htmlbeautify = require('gulp-html-beautify');
-const pug = require('gulp-pug');
+const pug = require('gulp-pug-3');
 
 //js
 const TerserPlugin = require('terser-webpack-plugin');

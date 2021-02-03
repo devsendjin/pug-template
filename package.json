@@ -30,7 +30,7 @@
     "gulp-if": "^3.0.0",
     "gulp-plumber": "^1.2.1",
     "gulp-postcss": "^8.0.0",
-    "gulp-pug": "^4.0.1",
+    "gulp-pug-3": "^1.1.7",
     "gulp-remember": "^1.0.1",
     "gulp-replace": "^1.0.0",
     "gulp-sass": "^4.1.0",
