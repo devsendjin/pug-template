@@ -3,8 +3,6 @@
 @import 'base/mixins';
 @import 'base/reset';
 @import 'base/fonts';
-//css debug
-@import 'base/pesticide';
 
 
 //libs
@@ -13,7 +11,8 @@
 //https://fancyapps.com/fancybox/3/docs/
 //@import 'vendor/jquery.fancybox.min';
 
-@import 'modules/sprite';
+
+// @import 'modules/sprite';
 @import 'modules/buttons';
 @import 'modules/forms';
 @import 'modules/modals';

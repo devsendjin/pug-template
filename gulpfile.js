@@ -16,13 +16,14 @@ const merge = require('merge-stream');
 const postcss = require('gulp-postcss');
 const inlineSvg = require('postcss-inline-svg'); // https://www.npmjs.com/package/postcss-inline-svg
 const sortMediaQueries = require('postcss-sort-media-queries');
-const scss = require('gulp-sass');
+const scss = require('gulp-dart-sass');
 const csso = require('gulp-csso');
 const bulkSass = require('gulp-sass-bulk-import');
 
 //html
 const htmlbeautify = require('gulp-html-beautify');
 const pug = require('gulp-pug');
+const nunjucks = require('gulp-nunjucks-render');
 
 //js
 const TerserPlugin = require('terser-webpack-plugin');
@@ -44,18 +45,35 @@ emitty.language({
 });
 
 const MODE = process.env.NODE_ENV || 'development';
-const isProduction = (process.env.NODE_ENV === 'production') || ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
-const isDevelopment = process.env.NODE_ENV === 'development' || ['--d', '--dev', '--development'].some(item => process.argv.includes(item));
+const IS_MODE_PRODUCTION = process.env.NODE_ENV === 'production' || ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
+const IS_MODE_DEVELOPMENT = process.env.NODE_ENV === 'development' || ['--d', '--dev', '--development'].some(item => process.argv.includes(item));
 
 const serverEnabled = ['--s', '--serve', '--server'].some(item => process.argv.includes(item));
 const shouldOpenBrowser = serverEnabled && ['--o', '--open'].some(item => process.argv.includes(item));
+
+const htmlBeautifyOptions = {
+  // "extra_liners": ['svg'],
+  // "unformatted": ['span'],
+  'inline': ['br', 'b', 'strong', 'span'],
+  'indent_size': 2,
+  'indent_char': '\t',
+  'indent_with_tabs': true,
+  'editorconfig': false,
+  'eol': '\n',
+  'end_with_newline': true,
+  'indent_level': 0,
+  'preserve_newlines': false,
+  'max_preserve_newlines': 10000
+};
+
 
 const config = {
     isWatchMode: false,
     // Changed files are written by the name of the task that will process them.
     // This is necessary to support more than one language in @emitty.
     watch: {
-        templates: undefined
+        templates: undefined,
+        nunjucks: undefined
     }
 }
 
@@ -82,20 +100,6 @@ const getFilter = taskName => {
     });
 }
 const templates = () => {
-    const htmlBeautifyOptions = {
-        // "extra_liners": ['svg'],
-        // "unformatted": ['span'],
-        'inline': ['br', 'b', 'strong', 'span'],
-        'indent_size': 2,
-        'indent_char': '\t',
-        'indent_with_tabs': true,
-        'editorconfig': false,
-        'eol': '\n',
-        'end_with_newline': true,
-        'indent_level': 0,
-        'preserve_newlines': false,
-        'max_preserve_newlines': 10000
-    };
     return src('./src/templates/*.pug')
         .pipe(plumber({
             errorHandler: function (err) {
@@ -106,10 +110,29 @@ const templates = () => {
         .pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
         .pipe(pug())
         .pipe(htmlbeautify(htmlBeautifyOptions))
-        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'HTML' })))
+        .pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'HTML' })))
         .pipe(dest('./build'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
+
+const nunjucksTemplates = () => {
+    return src('./src/nunjucks/*.njk')
+        .pipe(plumber({
+            errorHandler: function (err) {
+                console.log('templates ', err.message);
+                this.emit('end');
+            }
+        }))
+        .pipe(gulpIf(config.isWatchMode, getFilter('nunjucks'))) // Enables filtering only in watch mode
+        .pipe(nunjucks({
+        	path: ['./src/nunjucks']
+        }))
+        .pipe(htmlbeautify(htmlBeautifyOptions))
+        .pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'HTML' })))
+        .pipe(dest('./build'))
+        .pipe(gulpIf(serverEnabled, browserSync.stream()));
+}
+
 
 const styles = () => {
     return src('./src/scss/*.scss')
@@ -119,7 +142,7 @@ const styles = () => {
                 this.end();
             }
         }))
-        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
+        .pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.init()))
         .pipe(bulkSass())
         .pipe(scss().on('error', scss.logError))
         .pipe(postcss([
@@ -130,10 +153,8 @@ const styles = () => {
             })
         ]))
         .pipe(csso({ restructure: true }))
-        // .pipe(replace(/[\.\.\/]+images/gmi, '../img')) //заменяем пути к изображениям на правильные
-        // .pipe(replace(/url\(["']?(?:\.?\.?\/?)*(?:\w*\/)*(\w+)(.svg|.gif|.png|.jpg|.jpeg)["']?\)/gmi, '"../images/$1$2"')) //заменяем пути к изображениям на правильные
-        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
-        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'CSS' })))
+        .pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.write()))
+        .pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'CSS' })))
         .pipe(dest('./build/css'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -161,7 +182,7 @@ const scripts = () => {
                 filename: '[name].js',
             },
             devtool: false,
-            optimization: isProduction ? {
+            optimization: IS_MODE_PRODUCTION ? {
                 minimize: true,
                 minimizer: [
                     new TerserPlugin({
@@ -198,7 +219,7 @@ const scripts = () => {
                 ]
             },
         }))
-        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'JS' })))
+        .pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'JS' })))
         .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -215,13 +236,13 @@ const jsCommon = () => {
                 this.end();
             }
         }))
-        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
-        .pipe(gulpIf(isProduction, babel({
+        .pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.init()))
+        .pipe(gulpIf(IS_MODE_PRODUCTION, babel({
             presets: ['@babel/env']
         })))
         .pipe(concat('bundle.js'))
-        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
-        .pipe(gulpIf(isProduction, size({ showFiles: true, title: 'JS' })))
+        .pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.write()))
+        .pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'JS' })))
         .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -234,11 +255,11 @@ const jsPages = () => {
                 this.end();
             }
         }))
-        .pipe(gulpIf(isDevelopment, sourcemaps.init()))
-        .pipe(gulpIf(isProduction, babel({
+        .pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.init()))
+        .pipe(gulpIf(IS_MODE_PRODUCTION, babel({
             presets: ['@babel/env']
         })))
-        .pipe(gulpIf(isDevelopment, sourcemaps.write()))
+        .pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.write()))
         .pipe(dest('./build/js'))
         .pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -303,6 +324,11 @@ const watchTask = () => {
             // Logs the changed file for the templates task
             config.watch.templates = changed;
         })
+    watch('./src/nunjucks/**/*.njk', nunjucksTemplates)
+        .on('all', (event, changed) => {
+            // Logs the changed file for the templates task
+            config.watch.nunjucks = changed;
+        })
     watch('./src/js/common/*.js', scripts);
     watch('./src/scss/**/*.scss', styles)
     watch('./src/images/**/*', copyImages);
@@ -327,4 +353,5 @@ task('js', scripts);
 task('copy:img', copyImages);
 task('copy:files', copyFiles);
 task('templates', templates);
+task('njk', nunjucksTemplates);
 task('build', build);
