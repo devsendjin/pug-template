@@ -31,3 +31,11 @@ About the concept of [incremental compilation](https://canonium.com/articles/emi
 | `dev:build` | build without minified styles and scripts
 | `prod:watch` | production mode with enabled server [browsersync](https://www.browsersync.io/) |
 | `prod:build` | build with minified styles and scripts
+
+
+| Makefile commands | Description |
+| ------ | ------ |
+| `start` | remove *build* directory, copy *assets* and build *css, js, pug* in development mode, start watching and server [browsersync](https://www.browsersync.io/) |
+| `clear` | remove *build* directory
+| `pull` | pull from *master* branch |
+| `push` | push to *master* branch |

@@ -38,6 +38,7 @@
     "gulp-size": "^3.0.0",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-svg-sprite": "^1.5.0",
+    "gulp-terser": "^2.0.1",
     "merge-stream": "^2.0.0",
     "postcss-inline-svg": "^4.1.0",
     "postcss-sort-media-queries": "^1.7.25",
