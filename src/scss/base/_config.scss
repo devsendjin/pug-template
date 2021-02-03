@@ -1,9 +1,13 @@
-//debug
-//$debug-outline: true;
-
-$isDevelopmentMode: false;
-
 //fonts
+$monospaced-system-fonts:
+		/* macOS 10.10+ */ Menlo,
+    /* Windows 6+ */ Consolas,
+    /* Android 4+ */ Roboto Mono,
+    /* Ubuntu 10.10+ */ Ubuntu Monospace,
+    /* KDE Plasma 5+ */ Noto Mono,
+    /* KDE Plasma 4+ */ Oxygen Mono,
+    /* Linux/OpenOffice fallback */ Liberation Mono,
+    /* fallback */ monospace;
 $system-fonts: system-ui,
   /* macOS 10.11-10.12 */ -apple-system,
   /* Windows 6+ */ Segoe UI,
@@ -30,3 +34,4 @@ $offset: 15px !default;
 
 //easings
 @import 'easings';
+@import 'mixins';

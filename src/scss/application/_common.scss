@@ -10,16 +10,13 @@ html, body {
   height: 100%;
 }
 
-html {
-  font-size: 16px;
-  line-height: 1.6;
-}
-
 body {
   font-family: $montserrat;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
   color: $black;
   display: flex;
   flex-direction: column;

@@ -1,5 +1,16 @@
 - const isProduction = ['--pug-p', '--pug-prod', '--pug-production'].some(item => process.argv.includes(item));
 - const isDevelopment = ['--pug-d', '--pug-dev', '--pug-development'].some(item => process.argv.includes(item));
 
+-
+	let ogUrl = '/page-main.html',
+			ogType = 'website',
+			ogTitle = 'Awesome title for facebook',
+			ogImage = '/images/cat.jpg',
+			ogImageAlt = 'Cat',
+			ogDescription = 'So awesome cat!',
+			ogSiteName = 'Awesome template',
+			ogLocale = 'ru_RU',
+			articleAuthor = 'devsendjin';
+
 - let pageTitle = 'main';
 - const bodyAttributes = {};
