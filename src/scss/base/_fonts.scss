@@ -1,2 +1,10 @@
 @import 'mixins';
-// @include font-face('Test font', '../fonts/test_font/TestFont', 400, normal, eot woff2 woff ttf svg otf);
+
+// @include font-face(
+// 	$name: 'Test font',
+// 	$locals: 'Test font',
+// 	$path: '../fonts/test_font/TestFont',
+// 	$weight: 400,
+// 	$style: normal,
+// 	$exts: eot woff2 woff ttf svg otf
+// );

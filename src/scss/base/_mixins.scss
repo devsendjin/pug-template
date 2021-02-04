@@ -70,7 +70,7 @@
 // =============================================================================
 // Font Face
 // =============================================================================
-@mixin font-face($name, $path, $weight: null, $style: null, $exts: eot woff2 woff ttf svg otf) {
+@mixin font-face($name, $path, $locals: null, $weight: null, $style: null, $exts: eot woff2 woff ttf svg otf) {
 	$src: null;
 
 	$extmods: (
@@ -83,6 +83,12 @@
 		ttf: "truetype"
 	);
 
+	@if ($locals != null) {
+		@each $local in $locals {
+			$src: append($src, local(quote($local)), comma);
+		}
+	}
+
 	@each $ext in $exts {
 		$extmod: if(map-has-key($extmods, $ext), $ext + map-get($extmods, $ext), $ext);
 		$format: if(map-has-key($formats, $ext), map-get($formats, $ext), $ext);
@@ -93,7 +99,7 @@
 		font-family: quote($name);
 		font-style: $style;
 		font-weight: $weight;
-		font-display: optional;
+		font-display: swap;
 		src: $src;
 	}
 }
