@@ -5,7 +5,7 @@ const webpackStream = require('webpack-stream');
 const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
 const gulpIf = require('gulp-if');
-const through2 = require('through2');
+const through = require('through2');
 const emitty = require('@emitty/core').configure();
 const plumber = require('gulp-plumber');
 const size = require('gulp-size');
@@ -45,8 +45,8 @@ emitty.language({
 });
 
 const MODE = process.env.NODE_ENV || 'development';
-const IS_MODE_PRODUCTION = process.env.NODE_ENV === 'production' || ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
-const IS_MODE_DEVELOPMENT = process.env.NODE_ENV === 'development' || ['--d', '--dev', '--development'].some(item => process.argv.includes(item));
+const __PROD__ = process.env.NODE_ENV === 'production' || ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
+const __DEV__ = process.env.NODE_ENV === 'development' || ['--d', '--dev', '--development'].some(item => process.argv.includes(item));
 
 const serverEnabled = ['--s', '--serve', '--server'].some(item => process.argv.includes(item));
 const shouldOpenBrowser = serverEnabled && ['--o', '--open'].some(item => process.argv.includes(item));
@@ -89,6 +89,23 @@ const config = {
 	}
 }
 
+const removeEmptyLines = () => {
+	return through.obj(function(file, _encoding, callback) {
+		let fileContent = file.contents.toString();
+	  if (!fileContent === null || !fileContent === '' || fileContent) {
+	    try {
+	    	fileContent = fileContent.replace(/[\r\n]/gm, '') // remove 2 and more spaces in a row
+	    	fileContent = fileContent.replace(/[\s]{2,}/gm, '') // remove empty lines and line breaks
+				file.contents = Buffer.from(fileContent);
+	    } catch (err) {
+	      this.emit('error', new Error(`Something went wrong during removing empty lines! Error:\n${err.message}`));
+	    }
+	  }
+		this.push(file);
+		callback();
+	})
+}
+
 const server = () => {
 	browserSync.init({
 		server: {
@@ -101,7 +118,7 @@ const server = () => {
 }
 
 const getFilter = taskName => {
-	return through2.obj(function(file, _encoding, callback) {
+	return through.obj(function(file, _encoding, callback) {
 		emitty.filter(file.path, config.watch[taskName]).then((result) => {
 			if (result) {
 				this.push(file);
@@ -137,7 +154,7 @@ const templates = () => {
 		.pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
 		.pipe(pug())
 		.pipe(htmlbeautify(htmlBeautifyOptions))
-		.pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'HTML' })))
+		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'HTML' })))
 		.pipe(dest(path.build_directory))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -150,7 +167,7 @@ const styles = () => {
 				this.end();
 			}
 		}))
-		.pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.init()))
+		.pipe(gulpIf(__DEV__, sourcemaps.init()))
 		.pipe(bulkSass())
 		.pipe(scss().on('error', scss.logError))
 		.pipe(postcss([
@@ -160,9 +177,9 @@ const styles = () => {
 				sort: 'desktop-first'
 			})
 		]))
-		.pipe(csso({ restructure: true }))
-		.pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.write()))
-		.pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'CSS' })))
+		.pipe(gulpIf(__PROD__, csso({ restructure: true })))
+		.pipe(gulpIf(__DEV__, sourcemaps.write('../sourcemaps')))
+		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'CSS' })))
 		.pipe(dest(path.scss.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -170,7 +187,7 @@ const styles = () => {
 const scriptsWebpack = () => {
 	const jsFiles = [
 		{ entry: 'bundle', path: `${path.js.src}/bundle.js` },
-		{ entry: 'page-main', path: `${path.js.src}/page-main.js` },
+		{ entry: 'page-main', path: `${path.js.src}/pages/page-main.js` },
 	];
 
 	return src(jsFiles.map(item => item.path), { since: lastRun(scriptsWebpack) })
@@ -192,7 +209,7 @@ const scriptsWebpack = () => {
 				filename: '[name].js',
 			},
 			devtool: false,
-			optimization: IS_MODE_PRODUCTION ? {
+			optimization: __PROD__ ? {
 				minimize: true,
 				minimizer: [
 					new TerserPlugin({
@@ -227,7 +244,8 @@ const scriptsWebpack = () => {
 				}]
 			},
 		}))
-		.pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'JS' })))
+		.pipe(gulpIf(__PROD__, removeEmptyLines()))
+		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS' })))
 		.pipe(dest(path.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -243,23 +261,27 @@ const scriptsCommon = () => {
 				this.end();
 			}
 		}))
-		.pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.init()))
-		.pipe(gulpIf(IS_MODE_PRODUCTION, babel({
+		.pipe(gulpIf(__DEV__, sourcemaps.init()))
+		.pipe(gulpIf(__PROD__, babel({
 			presets: ['@babel/env']
 		})))
-		.pipe(terser({
+		.pipe(gulpIf(__PROD__, terser({
 			warnings: false,
-			comments: false,
 			compress: {
 				comparisons: false,
 			},
 			parse: {},
 			mangle: true,
+			output: {
+				comments: false,
+				ascii_only: true,
+			},
 			sourceMap: false,
-		}))
+		})))
 		.pipe(concat('bundle.js'))
-		.pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.write()))
-		.pipe(gulpIf(IS_MODE_PRODUCTION, size({ showFiles: true, title: 'JS' })))
+		.pipe(gulpIf(__PROD__, removeEmptyLines()))
+		.pipe(gulpIf(__DEV__, sourcemaps.write('../sourcemaps')))
+		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS' })))
 		.pipe(dest(path.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -272,11 +294,11 @@ const scriptsPages = () => {
 				this.end();
 			}
 		}))
-		.pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.init()))
-		.pipe(gulpIf(IS_MODE_PRODUCTION, babel({
+		.pipe(gulpIf(__DEV__, sourcemaps.init()))
+		.pipe(gulpIf(__PROD__, babel({
 			presets: ['@babel/env']
 		})))
-		.pipe(terser({
+		.pipe(gulpIf(__PROD__, terser({
 			warnings: false,
 			compress: {
 				comparisons: false,
@@ -288,8 +310,9 @@ const scriptsPages = () => {
 				ascii_only: true,
 			},
 			sourceMap: false,
-		}))
-		.pipe(gulpIf(IS_MODE_DEVELOPMENT, sourcemaps.write()))
+		})))
+		.pipe(gulpIf(__PROD__, removeEmptyLines()))
+		.pipe(gulpIf(__DEV__, sourcemaps.write('../sourcemaps')))
 		.pipe(dest(path.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -305,8 +328,8 @@ const copyImages = () => {
 }
 
 const copyFiles = () => {
-	const js = src(`${path.js.src}/vendor/lazysizes.min.js`, { since: lastRun(copyFiles) })
-		.pipe(terser({
+	const js = src(`${path.js.src}/vendor/lazysizes.min.js`)
+		.pipe(gulpIf(__PROD__, terser({
 			warnings: false,
 			compress: {
 				comparisons: false,
@@ -318,10 +341,12 @@ const copyFiles = () => {
 				ascii_only: true,
 			},
 			sourceMap: false,
-		}))
+		})))
 		.pipe(dest(path.js.build));
+
 	const favicons = src(`${path.source_directory}/favicons/*`)
 		.pipe(dest(`${path.build_directory}/favicons`));
+
 	return merge(js, favicons);
 };
 

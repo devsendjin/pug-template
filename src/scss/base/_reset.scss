@@ -1,8 +1,13 @@
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
   outline: none;
+}
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
 }
 
 /**
@@ -11,7 +16,6 @@
  */
 ::before,
 ::after {
-  box-sizing: border-box;
   text-decoration: inherit; /* 1 */
   vertical-align: inherit; /* 2 */
 }
@@ -136,6 +140,14 @@ button {
   appearance: none;
 }
 
+/*
+ * Change the cursor on disabled, not-editable, or otherwise
+ * inoperable elements in all browsers (opinionated).
+ */
+[disabled] {
+  cursor: not-allowed;
+}
+
 /**
  * Correct the text style of placeholders in Chrome, Edge, and Safari.
  */
@@ -229,7 +241,7 @@ textarea,
  * Pre-formatted and code-formatted text uses the monospace system font
  */
 code, kbd, pre, samp {
-  font-family: $monospaced-system-fonts;
+  font-family: $default-ui-monospaced-fonts;
 }
 
 article,
