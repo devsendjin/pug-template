@@ -6,11 +6,18 @@ placeholder:
 	@echo 'Hey, are you familiar with makefile?' && \
 	echo 'Take a look at project Makefile'
 
-start: clear
-	@npm run dev:build && \
-	npm run dev:watch
+start: clean dev watch
 
-clear:
+dev:
+	@npm run dev:build
+
+prod: clean
+	@npm run prod:build
+
+watch:
+	@npm run dev:watch
+
+clean:
 	@rm -rf build/
 
 node-refresh:

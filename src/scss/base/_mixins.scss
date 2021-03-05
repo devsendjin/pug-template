@@ -9,13 +9,12 @@
 }
 
 @mixin unselectable {
-	-webkit-touch-callout: none; /* iOS Safari */
-	-webkit-user-select: none;   /* Chrome/Safari/Opera */
-	-khtml-user-select: none;    /* Konqueror */
-	-moz-user-select: none;      /* Firefox */
-	-ms-user-select: none;       /* Internet Explorer/Edge */
-	user-select: none;           /* Non-prefixed version, currently
-                                  not supported by any browser */
+	-webkit-touch-callout: none; // iOS Safari
+	-webkit-user-select: none;   // Chrome/Safari/Opera
+	-khtml-user-select: none;    // Konqueror
+	-moz-user-select: none;      // Firefox
+	-ms-user-select: none;       // Internet Explorer/Edge
+	user-select: none;           // Non-prefixed version
 }
 
 // =============================================================================
@@ -70,7 +69,14 @@
 // =============================================================================
 // Font Face
 // =============================================================================
-@mixin font-face($name, $path, $locals: null, $weight: null, $style: null, $exts: eot woff2 woff ttf svg otf) {
+@mixin font-face(
+	$name,
+	$path,
+	$locals: null,
+	$weight: null,
+	$style: null,
+	$exts: eot woff2 woff ttf svg otf
+) {
 	$src: null;
 
 	$extmods: (
@@ -114,7 +120,14 @@
 // =============================================================================
 // underline animation
 // =============================================================================
-@mixin underline-end-state($bgSizeX: 100%, $bgSizeY: 100%, $bgPos: left, $behavior: null, $trsProps: null, $trsDuration: null) {
+@mixin underline-end-state(
+	$bgSizeX: 100%,
+	$bgSizeY: 100%,
+	$bgPos: left,
+	$behavior: null,
+	$trsProps: null,
+	$trsDuration: null
+) {
 	background-position: $bgPos;
 	@if ($behavior == null) {
 		background-size: $bgSizeX $bgSizeY;
@@ -133,7 +146,17 @@
 	}
 }
 
-@mixin underline-start-state($color: #000000, $bgSizeX: 0, $bgSizeY: 100%, $bgPos: left, $trsProps: background-size, $trsDuration: .3s, $behavior: null, $height: 1px, $bottom: 0) {
+@mixin underline-start-state(
+	$color: #000000,
+	$bgSizeX: 0,
+	$bgSizeY: 100%,
+	$bgPos: left,
+	$trsProps: background-size,
+	$trsDuration: .3s,
+	$behavior: null,
+	$height: 1px,
+	$bottom: 0
+) {
 	@include bgi($color, $height, $bottom);
 	background-repeat: no-repeat;
 	background-position: $bgPos;
@@ -152,7 +175,17 @@
 	}
 }
 
-@mixin underline($color: #000000, $bgSizeX: 0, $bgSizeY: 100%, $bgPos: left, $trsProps: background-size, $trsDuration: .3s, $behavior: show-on-hover, $height: 1px, $bottom: 0) {
+@mixin underline(
+	$color: #000000,
+	$bgSizeX: 0,
+	$bgSizeY: 100%,
+	$bgPos: left,
+	$trsProps: background-size,
+	$trsDuration: .3s,
+	$behavior: show-on-hover,
+	$height: 1px,
+	$bottom: 0
+) {
 	@include underline-start-state($color, $bgSizeX, $bgSizeY, $bgPos, $trsProps, $trsDuration, $behavior, $height, $bottom);
 	&.hover, &:hover {
 		@include underline-end-state($bgSizeX, $bgSizeY, $bgPos, $behavior);
@@ -171,6 +204,39 @@
 		height: 0;
 	}
 	-ms-overflow-style: none; // EDGE
+}
+
+// =============================================================================
+// custom scrollbar
+// =============================================================================
+@mixin customScrollbar($width: 12px) {
+	// Styles for Firefox not a lot of options we are able to set for custom scrollbars
+  scrollbar-width: thin;
+  scrollbar-color: $studio-gray-30 transparent;
+
+	&::-webkit-scrollbar {
+	  width: $width;
+	  background: transparent;
+	}
+
+	&::-webkit-scrollbar-corner {
+	  background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+	  background: #ddd;
+	  border-radius: 100px;
+	  border: 4px solid #fff;
+	  min-height: 24px;
+	}
+	// hover effect for scrollbar 'thumb'
+	// &::-webkit-scrollbar-thumb:hover {
+	//   background-color: $studio-gray-20;
+	// }
+	// &::-webkit-scrollbar-thumb:active {
+	//   background: #ddd;
+	//   border-radius: 100px;
+	// }
 }
 
 // =============================================================================
@@ -306,9 +372,9 @@
 }
 
 // =============================================================================
-// custom grid
+// custom flex-box grid
 // =============================================================================
-@mixin grid-row-flex($offset: $offset){
+@mixin grid-row($offset: $offset){
 	display: flex;
 	margin-left: ($offset / -2);
 	margin-right: ($offset / -2);
@@ -333,7 +399,7 @@
 }
 
 // =============================================================================
-// Centering
+// centering
 // =============================================================================
 @mixin center($axis: 'xy') {
 	position: absolute;
@@ -350,7 +416,7 @@
 	}
 }
 
-//нужно для fancybox
+// necessary for fancybox
 @function max($numbers...) {
 	@return m#{a}x(#{$numbers});
 }
