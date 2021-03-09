@@ -14,6 +14,7 @@ const merge = require('merge-stream');
 
 //scss
 const postcss = require('gulp-postcss');
+const autoprefixer = require('autoprefixer');
 const inlineSvg = require('postcss-inline-svg'); // https://www.npmjs.com/package/postcss-inline-svg
 const sortMediaQueries = require('postcss-sort-media-queries');
 const scss = require('gulp-dart-sass');
@@ -24,7 +25,7 @@ const bulkSass = require('gulp-sass-bulk-import');
 const htmlbeautify = require('gulp-html-beautify');
 const pug = require('gulp-pug-3');
 
-//js
+// js
 const terser = require('gulp-terser');
 const TerserPlugin = require('terser-webpack-plugin');
 const babel = require('gulp-babel');
@@ -54,6 +55,7 @@ const shouldOpenBrowser = serverEnabled && ['--o', '--open'].some(item => proces
 const path = {
 	source_directory: './src',
 	build_directory: './build',
+	sourcemaps: '../sourcemaps',
 	get js() {
 		return {
 			src: `${this.source_directory}/js`,
@@ -80,7 +82,7 @@ const path = {
 	},
 }
 
-const config = {
+const emittyConfig = {
 	isWatchMode: false,
 	// Changed files are written by the name of the task that will process them.
 	// This is necessary to support more than one language in @emitty.
@@ -88,6 +90,20 @@ const config = {
 		templates: undefined,
 	}
 }
+
+const terserOptions = {
+  warnings: false,
+  compress: {
+    comparisons: false,
+  },
+  parse: {},
+  mangle: true,
+  output: {
+    comments: false,
+    ascii_only: true,
+  },
+  sourceMap: false,
+};
 
 const removeEmptyLines = () => {
 	return through.obj(function(file, _encoding, callback) {
@@ -119,7 +135,7 @@ const server = () => {
 
 const getFilter = taskName => {
 	return through.obj(function(file, _encoding, callback) {
-		emitty.filter(file.path, config.watch[taskName]).then((result) => {
+		emitty.filter(file.path, emittyConfig.watch[taskName]).then((result) => {
 			if (result) {
 				this.push(file);
 			}
@@ -151,7 +167,7 @@ const templates = () => {
 				this.emit('end');
 			}
 		}))
-		.pipe(gulpIf(config.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
+		.pipe(gulpIf(emittyConfig.isWatchMode, getFilter('templates'))) // Enables filtering only in watch mode
 		.pipe(pug())
 		.pipe(htmlbeautify(htmlBeautifyOptions))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'HTML' })))
@@ -171,14 +187,14 @@ const styles = () => {
 		.pipe(bulkSass())
 		.pipe(scss().on('error', scss.logError))
 		.pipe(postcss([
-			require('autoprefixer')(),
+			autoprefixer(),
 			inlineSvg({ removeFill: true, removeStroke: true }),
 			sortMediaQueries({
 				sort: 'desktop-first'
 			})
 		]))
 		.pipe(gulpIf(__PROD__, csso({ restructure: true })))
-		.pipe(gulpIf(__DEV__, sourcemaps.write('../sourcemaps')))
+		.pipe(gulpIf(__DEV__, sourcemaps.write(path.sourcemaps)))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'CSS' })))
 		.pipe(dest(path.scss.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
@@ -208,23 +224,12 @@ const scriptsWebpack = () => {
 			output: {
 				filename: '[name].js',
 			},
-			devtool: false,
+			devtool: __DEV__ ? 'eval-cheap-module-source-map' : false,
 			optimization: __PROD__ ? {
 				minimize: true,
 				minimizer: [
 					new TerserPlugin({
-						terserOptions: {
-							format: {
-								comments: false,
-							},
-							output: { comments: false },
-							warnings: false,
-							compress: {
-								comparisons: false,
-							},
-							parse: {},
-							mangle: true,
-						},
+						terserOptions,
 						extractComments: false,
 						sourceMap: false,
 					}),
@@ -265,61 +270,18 @@ const scriptsCommon = () => {
 		.pipe(gulpIf(__PROD__, babel({
 			presets: ['@babel/env']
 		})))
-		.pipe(gulpIf(__PROD__, terser({
-			warnings: false,
-			compress: {
-				comparisons: false,
-			},
-			parse: {},
-			mangle: true,
-			output: {
-				comments: false,
-				ascii_only: true,
-			},
-			sourceMap: false,
-		})))
+		.pipe(gulpIf(__PROD__, terser(terserOptions)))
 		.pipe(concat('bundle.js'))
 		.pipe(gulpIf(__PROD__, removeEmptyLines()))
-		.pipe(gulpIf(__DEV__, sourcemaps.write('../sourcemaps')))
+		.pipe(gulpIf(__DEV__, sourcemaps.write(path.sourcemaps)))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS' })))
-		.pipe(dest(path.js.build))
-		.pipe(gulpIf(serverEnabled, browserSync.stream()));
-}
-
-const scriptsPages = () => {
-	return src([`${path.js.src}/pages/*.js`])
-		.pipe(plumber({
-			errorHandler: function(err) {
-				console.log('scriptsPages ', err.message);
-				this.end();
-			}
-		}))
-		.pipe(gulpIf(__DEV__, sourcemaps.init()))
-		.pipe(gulpIf(__PROD__, babel({
-			presets: ['@babel/env']
-		})))
-		.pipe(gulpIf(__PROD__, terser({
-			warnings: false,
-			compress: {
-				comparisons: false,
-			},
-			parse: {},
-			mangle: true,
-			output: {
-				comments: false,
-				ascii_only: true,
-			},
-			sourceMap: false,
-		})))
-		.pipe(gulpIf(__PROD__, removeEmptyLines()))
-		.pipe(gulpIf(__DEV__, sourcemaps.write('../sourcemaps')))
 		.pipe(dest(path.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const copyImages = () => {
 	return src([
-			`${path.img.src}**/*`,
+			`${path.img.src}/**/*`,
 			`!${path.img.src}/svg/sprite`,
 			`!${path.img.src}/svg/sprite/*`
 		], { base: path.source_directory, since: lastRun(copyImages) })
@@ -390,7 +352,7 @@ const watchTask = () => {
 	watch(`${path.pug.src}/**/*.pug`, templates)
 		.on('all', (event, changed) => {
 			// Logs the changed file for the templates task
-			config.watch.templates = changed;
+			emittyConfig.watch.templates = changed;
 		})
 	watch(`${path.js.src}/*.js`, scriptsWebpack);
 	watch(`${path.scss.src}/**/*.scss`, styles)
@@ -400,7 +362,7 @@ const watchTask = () => {
 // need for templates task
 const watchInit = done => {
 	// Enables the watch mode for conditions
-	config.isWatchMode = true;
+	emittyConfig.isWatchMode = true;
 	done();
 }
 

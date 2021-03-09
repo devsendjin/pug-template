@@ -9,7 +9,7 @@ html(lang='ru')
     include ./head
 
     link(rel='stylesheet', href='https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap')
-    link(rel='stylesheet', href='./css/bundle.css')
+    +styles(['bundle'])
 
     block styles
 
@@ -25,4 +25,4 @@ html(lang='ru')
     include ../sections/footer
 
     block scripts
-      script(src="./js/bundle.js")
+      script(src="/js/bundle.js")

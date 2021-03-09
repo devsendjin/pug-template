@@ -1,5 +1,5 @@
-- const isProduction = ['--pug-p', '--pug-prod', '--pug-production'].some(item => process.argv.includes(item));
-- const isDevelopment = ['--pug-d', '--pug-dev', '--pug-development'].some(item => process.argv.includes(item));
+- const __PROD__ = ['--pug-p', '--pug-prod', '--pug-production'].some(item => process.argv.includes(item));
+- const __DEV__ = ['--pug-d', '--pug-dev', '--pug-development'].some(item => process.argv.includes(item));
 
 -
 	let ogUrl = '/page-main.html',

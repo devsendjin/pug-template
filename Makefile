@@ -8,7 +8,7 @@ placeholder:
 
 start: clean dev watch
 
-dev:
+dev: clean
 	@npm run dev:build
 
 prod: clean

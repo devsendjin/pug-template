@@ -1,3 +1,14 @@
+mixin styles(sources = [], attrs = {})
+  if (sources.length)
+    each src in sources
+      link(rel='stylesheet' href=`/css/${src}.css`)&attributes(attrs)
+
+mixin scripts(sources = [], attrs = {})
+  - console.log(attrs)
+  if (sources.length)
+    each src in sources
+      script(src=`/js/${src}.js`)&attributes(attrs)
+
 mixin space
   | #{' '}
 
