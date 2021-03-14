@@ -8,17 +8,11 @@ meta(http-equiv='X-UA-Compatible', content='ie=edge')
 //- All Search Engines
 meta(name='robots' content='index,follow')
 //- Google Specific
-meta(name='googlebot' content='index,follow')
+//- meta(name='googlebot' content='index,follow')
 
 
 //- Short description of the document (limit to 150 characters)
-//- This content *may* be used as a part of search engine results.
 meta(name='description' content='This is awesome pug template')
-
-
-//- Add to home screen
-//- meta(name='mobile-web-app-capable' content='yes')
-
 meta(name='msapplication-TileColor' content='#da532c')
 meta(name='theme-color' content='#ffffff')
 
@@ -29,7 +23,9 @@ link(rel='manifest' href='/favicons/manifest.json')
 link(rel='mask-icon' href='/favicons/safari-pinned-tab.svg' color='#5bbad5')
 
 //- Set the base URL for all relative URLs within the document
-//- base(href='/')
+if (siteUrl)
+  base(href=siteUrl)
+  link(rel="canonical", href=siteUrl)
 
 //- meta(property='fb:app_id' content='123456789')
 meta(property='og:url' content=ogUrl)

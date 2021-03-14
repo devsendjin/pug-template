@@ -124,13 +124,20 @@ const removeEmptyLines = () => {
 
 const server = () => {
 	browserSync.init({
-		server: {
+    /* server: {
 			baseDir: path.build_directory,
-			directory: true,
-		},
-		open: shouldOpenBrowser,
-		notify: false
-	});
+      directory: disable,
+		}, */
+
+    // pretty urls
+    serveStatic: [path.build_directory],
+    serveStaticOptions: {
+      extensions: ["html"],
+    },
+    open: shouldOpenBrowser,
+    reloadOnRestart: true,
+    notify: false,
+  });
 }
 
 const getFilter = taskName => {
@@ -203,7 +210,7 @@ const styles = () => {
 const scriptsWebpack = () => {
 	const jsFiles = [
 		{ entry: 'bundle', path: `${path.js.src}/bundle.js` },
-		{ entry: 'page-main', path: `${path.js.src}/pages/page-main.js` },
+		{ entry: 'page-main', path: `${path.js.src}/pages/index.js` },
 	];
 
 	return src(jsFiles.map(item => item.path), { since: lastRun(scriptsWebpack) })

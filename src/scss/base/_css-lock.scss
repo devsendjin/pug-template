@@ -84,7 +84,7 @@
 		} @else {
 			// in case if current key:value pair is last in map list
 			// and if last breakpoint is not equal to 320px
-			@if (currentBreakpoint != 320) {
+			@if ($currentBreakpoint != 320) {
 				@media (max-width: #{$currentBreakpoint}px) {
 					#{$propName}: #{$currentPropValue}px;
 				}
