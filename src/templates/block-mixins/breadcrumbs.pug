@@ -1,0 +1,21 @@
+//- +breadcrumbs([
+//-   { label: 'Some name', href: 'https://crumb-url.com' },
+//-   { label: 'Some name 1', href: 'https://crumb-url.next.com' },
+//- ])
+
+mixin breadcrumbs(crumbs = [])
+  div(itemscope='' itemtype='http://schema.org/BreadcrumbList').breadcrumbs
+    each crumb, index in crumbs
+      - const count = index+1
+      - const { label, href } = crumb
+
+      if (index === crumbs.length-1)
+        span(itemprop='itemListElement' itemtype='http://schema.org/ListItem' itemscope).breadcrumbs__item-box
+          meta(itemprop='position' content!=count)
+          span(itemprop='name').breadcrumbs__item-label= label
+
+      else
+        span(itemprop='itemListElement' itemtype='http://schema.org/ListItem' itemscope).breadcrumbs__item-box
+          meta(itemprop='position' content!=count)
+          a(itemprop='item' href=href).breadcrumbs__item-link
+            span(itemprop='name').breadcrumbs__item-label= label
