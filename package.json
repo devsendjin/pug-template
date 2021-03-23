@@ -1,13 +1,13 @@
 {
   "name": "pug-template",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Comfortable gulp template for creating html pages faster than usually",
   "main": "gulpfile.js",
   "scripts": {
-    "dev:watch": "cross-env NODE_ENV=development gulp --s --o --unhandled-rejections=strict",
-    "dev:build": "cross-env NODE_ENV=development gulp build --unhandled-rejections=strict",
-    "prod:watch": "cross-env NODE_ENV=production gulp --s --o --unhandled-rejections=strict",
-    "prod:build": "cross-env NODE_ENV=production gulp build --unhandled-rejections=strict"
+    "watch:dev": "cross-env NODE_ENV=development  gulp --serve --open",
+    "build:dev": "cross-env NODE_ENV=development gulp build",
+    "watch:prod": "cross-env NODE_ENV=production gulp --serve --open",
+    "build:prod": "cross-env NODE_ENV=production gulp build"
   },
   "devDependencies": {
     "@babel/core": "^7.10.5",
@@ -58,5 +58,8 @@
     "defaults"
   ],
   "author": "Anatoliy Skichko",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "selectize": "^0.12.6"
+  }
 }

@@ -9,13 +9,13 @@ placeholder:
 start: clean dev watch
 
 dev: clean
-	@npm run dev:build
+	@npm run build:dev
 
 prod: clean
-	@npm run prod:build
+	@npm run build:prod
 
 watch:
-	@npm run dev:watch
+	@npm run watch:dev
 
 clean:
 	@rm -rf build/

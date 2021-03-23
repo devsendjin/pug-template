@@ -3,7 +3,9 @@ Compiling `pug` templates realized with [incremental compilation](https://github
 
 About the concept of [incremental compilation](https://canonium.com/articles/emitty/).
 
-* [UpCss](https://github.com/nepster-web/UpCss/) - css methodology/architecture used in project
+*`npm install -g cross-env`* before using this template.
+
+* [UpCss](https://github.com/nepster-web/UpCss/) - css methodology/architecture used in project.
 
 | Gulp task | Description |
 | ------ | ------ |

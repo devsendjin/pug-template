@@ -1,0 +1,5 @@
+.button {
+  @include resetBtn;
+  border: 1px solid $black;
+}
+

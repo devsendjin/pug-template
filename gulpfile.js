@@ -60,24 +60,41 @@ const path = {
 		return {
 			src: `${this.source_directory}/js`,
 			build: `${this.build_directory}/js`,
+			watch: [
+        `${this.source_directory}/js/**/*.js`,
+        `!${this.source_directory}/js/pages`,
+        `!${this.source_directory}/js/pages/*.js`
+      ],
+		}
+	},
+	get jsPages() {
+		return {
+			src: `${this.source_directory}/js/pages/*.js`,
+			build: `${this.build_directory}/js`,
+			watch: `${this.source_directory}/js/pages/*.js`,
 		}
 	},
 	get scss() {
 		return {
-			src: `${this.source_directory}/scss`,
+			src: `${this.source_directory}/scss/*.scss`,
 			build: `${this.build_directory}/css`,
+			watch: [
+        `${this.source_directory}/scss/**/*.scss`,
+      ],
 		}
 	},
 	get pug() {
 		return {
-			src: `${this.source_directory}/templates`,
+			src: `${this.source_directory}/templates/*.pug`,
 			build: this.build_directory,
+			watch: `${this.source_directory}/templates/**/*.pug`,
 		}
 	},
 	get img() {
 		return {
 			src: `${this.source_directory}/images`,
 			build: this.build_directory,
+			watch: `${this.source_directory}/images/**/*`,
 		}
 	},
 }
@@ -167,7 +184,7 @@ const templates = () => {
 		'max_preserve_newlines': 10000
 	};
 
-	return src(`${path.pug.src}/*.pug`)
+	return src(path.pug.src)
 		.pipe(plumber({
 			errorHandler: function(err) {
 				console.log('templates ', err.message);
@@ -183,7 +200,7 @@ const templates = () => {
 }
 
 const styles = () => {
-	return src(`${path.scss.src}/*.scss`)
+	return src(path.scss.src)
 		.pipe(plumber({
 			errorHandler: function(err) {
 				console.log('styles ', err.message);
@@ -210,7 +227,6 @@ const styles = () => {
 const scriptsWebpack = () => {
 	const jsFiles = [
 		{ entry: 'bundle', path: `${path.js.src}/bundle.js` },
-		{ entry: 'page-main', path: `${path.js.src}/pages/index.js` },
 	];
 
 	return src(jsFiles.map(item => item.path), { since: lastRun(scriptsWebpack) })
@@ -262,14 +278,15 @@ const scriptsWebpack = () => {
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
-const scriptsCommon = () => {
+const scripts = () => {
 	return src([
-			`${path.js.src}/vendor/jquery.min.js`,
-			`${path.js.src}/bundle.js`,
+    `${path.js.src}/vendor/jquery.min.js`,
+    `${path.js.src}/lib.js`,
+    `${path.js.src}/bundle.js`,
 		])
 		.pipe(plumber({
 			errorHandler: function(err) {
-				console.log('scriptsCommon ', err.message);
+				console.log('scripts ', err.message);
 				this.end();
 			}
 		}))
@@ -282,6 +299,26 @@ const scriptsCommon = () => {
 		.pipe(gulpIf(__PROD__, removeEmptyLines()))
 		.pipe(gulpIf(__DEV__, sourcemaps.write(path.sourcemaps)))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS' })))
+		.pipe(dest(path.js.build))
+		.pipe(gulpIf(serverEnabled, browserSync.stream()));
+}
+
+const scriptsPages = () => {
+	return src(path.jsPages.src)
+		.pipe(plumber({
+			errorHandler: function(err) {
+				console.log('scriptsPages ', err.message);
+				this.end();
+			}
+		}))
+		.pipe(gulpIf(__DEV__, sourcemaps.init()))
+		.pipe(gulpIf(__PROD__, babel({
+			presets: ['@babel/env']
+		})))
+		.pipe(gulpIf(__PROD__, terser(terserOptions)))
+		.pipe(gulpIf(__PROD__, removeEmptyLines()))
+		.pipe(gulpIf(__DEV__, sourcemaps.write(path.sourcemaps)))
+		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS pages' })))
 		.pipe(dest(path.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
@@ -346,7 +383,7 @@ const createSvgSprite = () => {
 					sprite: '../sprite.svg',
 					render: {
 						scss: {
-							dest: '../../../scss/modules/_sprite.scss',
+							dest: '../../../scss/components/_sprite.scss',
 						}
 					}
 				}
@@ -356,14 +393,18 @@ const createSvgSprite = () => {
 }
 
 const watchTask = () => {
-	watch(`${path.pug.src}/**/*.pug`, templates)
+	// watch(`${path.pug.src}/**/*.pug`, templates)
+	watch(path.pug.watch, templates)
 		.on('all', (event, changed) => {
 			// Logs the changed file for the templates task
 			emittyConfig.watch.templates = changed;
 		})
-	watch(`${path.js.src}/*.js`, scriptsWebpack);
-	watch(`${path.scss.src}/**/*.scss`, styles)
-	watch(`${path.img.src}/**/*`, copyImages);
+
+	watch(path.js.watch, scripts);
+	watch(path.jsPages.watch, scriptsPages);
+
+	watch(path.scss.watch, styles)
+	watch(path.img.watch, copyImages);
 }
 
 // need for templates task
@@ -375,14 +416,15 @@ const watchInit = done => {
 
 const defaultTask = serverEnabled ? parallel(series(watchInit, templates, watchTask), server) : series(watchInit, templates, watchTask);
 
-const build = parallel(templates, styles, scriptsWebpack, copyImages, copyFiles);
+const build = parallel(templates, styles, scripts, copyImages, copyFiles);
 
 task('default', defaultTask);
 task('server', server);
 task('sprite', series(createSvgSprite, copyImages));
 task('css', styles);
-task('js', scriptsWebpack);
-// task('js', scriptsCommon);
+// task('js:pages', scriptsPages);
+// task('js', scriptsWebpack);
+task('js', scripts);
 task('copy:img', copyImages);
 task('copy:files', copyFiles);
 task('templates', templates);

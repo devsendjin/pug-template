@@ -40,7 +40,7 @@ class Utils {
 		})
 	}
 
-	initPageScrollState() {
+	static initPageScrollState() {
 		let pageScrollPosition = 0
 		const fix = () => {
 			if (!document.body.parentElement.classList.contains('fixed')) {
@@ -69,7 +69,7 @@ class Utils {
 		}
 	}
 
-	initScrollBlocksAnimation() {
+	static initScrollBlocksAnimation() {
 		let scrollAnimatedBlocks
 
 		const setupData = () => {
@@ -147,7 +147,7 @@ class Utils {
 		}
 	}
 
-	polyfills() {
+	static polyfills() {
 		if (!Element.prototype.matches)
 			Element.prototype.matches = Element.prototype.msMatchesSelector ||
 			Element.prototype.webkitMatchesSelector
@@ -166,7 +166,8 @@ class Utils {
 	}
 
 	static passiveScrollEventListener() {
-		let scrollEventListenerThirdArgument = false(() => {
+		let scrollEventListenerThirdArgument = false;
+    (() => {
 			try {
 				let options = Object.defineProperty({}, "passive", {
 					get: () => {
@@ -317,20 +318,26 @@ class Utils {
 
 		if (!elements) {
 			console.assert('Selector is not defined')
-			return
+			return;
 		}
 
 		elements.forEach(input => {
+      let activeClassElement = null;
+      if (input.dataset.activeElSelector) {
+        activeClassElement = input.closest(`.${input.dataset.activeElSelector}`);
+      } else {
+        activeClassElement = input.parentElement;
+      }
 			if (input.value) {
-				input.parentElement.classList.add('active')
+				activeClassElement.classList.add('active')
 			}
 			input.addEventListener('focus', function() {
-				this.parentElement.classList.add('active')
+        activeClassElement.classList.add('active');
 			})
 
 			input.addEventListener('blur', function() {
 				if (!input.value) {
-					this.parentElement.classList.remove('active')
+					activeClassElement.classList.remove('active')
 				}
 			})
 		})
@@ -417,7 +424,7 @@ class Utils {
 
 	static findGetParameter(parameterName) {
 		const items = location.search.substr(1).split("&")
-		for (let index = 0 index < items.length index++) {
+		for (let index = 0; index < items.length; index++) {
 			const tmp = items[index].split("=")
 			if (tmp[0] === parameterName) return decodeURIComponent(tmp[1])
 		}

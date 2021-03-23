@@ -1,0 +1,57 @@
+// common-styles
+.form {
+  position: relative;
+
+  .form-group {
+    position: relative;
+    width: 100%;
+    display: block;
+
+    &__placeholder {
+      position: absolute;
+      left: 5px;
+      top: 3px;
+      font-size: 12px;
+      color: #ddd;
+      pointer-events: none;
+      transition: transform $trs, font-size $trs;
+    }
+
+    .input:not([type="submit"]) {
+      border: 1px solid #ddd;
+      padding: 5px 10px;
+      transition: box-shadow $trs, font-size $trs;
+      background-color: #fff;
+
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(9, 124, 255, 0.31);
+      }
+    }
+
+    &.active {
+      .form-group__placeholder {
+        transform: translateY(-20px);
+        font-size: 9px;
+      }
+    }
+
+    &.invalid {
+    }
+
+    // .input:not([type="submit"]):not([type="checkbox"]) {}
+  }
+
+  .message-group {
+    .textarea {
+      @include invisibleScrollbar;
+      resize: none;
+      border: 1px solid #ddd;
+    }
+  }
+
+  .checkbox-holder {
+    .checkbox {
+      @include visually-hidden;
+    }
+  }
+}

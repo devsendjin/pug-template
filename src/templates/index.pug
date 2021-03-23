@@ -1,12 +1,9 @@
-extends ./base/layout
+extends ./core/layout
 
 append config
   -
-    pageTitle = 'Main';
-    bodyAttributes.class = 'page-main'
-
-append styles
-  +styles(['page-main'])
+    pageTitle = 'Index';
+    bodyAttributes.class = 'page-index'
 
 block content
   main.main

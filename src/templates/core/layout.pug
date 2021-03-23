@@ -9,20 +9,22 @@ html(lang='ru')
     include ./head
 
     link(rel='stylesheet', href='https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap')
-    +styles(['bundle'])
+    +styles(['bundle.css'])
 
     block styles
 
-    script(src='/js/lazysizes.min.js', async='')
+    +scripts(['lazysizes.min.js'])(async)
     title Awesome | #{pageTitle}
 
   body(class='lazyload-fade')&attributes(bodyAttributes)
 
-    include ../sections/header
+    block header
+      include ../sections/header
 
     block content
 
-    include ../sections/footer
+    block footer
+      include ../sections/footer
 
     block scripts
-      script(src="/js/bundle.js")
+      +scripts(['bundle.js'])

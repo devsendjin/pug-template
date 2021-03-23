@@ -1,24 +1,20 @@
-//base
-@import 'base/config';
-@import 'base/reset';
-@import 'base/fonts';
+@import 'abstracts/config';
+// @import 'abstracts/easings';
+@import 'abstracts/css-lock';
+@import 'abstracts/mixins';
 
+// @import 'vendors/selectric';
 
-//libs
-//https://selectric.js.org/
-//@import 'vendor/selectric';
-//https://fancyapps.com/fancybox/3/docs/
-//@import 'vendor/jquery.fancybox.min';
+@import 'core/reset';
+@import 'core/typography';
+@import 'core/base';
 
+// @import 'components/modals';
+@import 'components/buttons';
+@import 'components/forms';
 
-// @import 'modules/sprite';
-@import 'modules/buttons';
-@import 'modules/forms';
-@import 'modules/modals';
+@import 'sections/*';
 
+@import 'pages/*';
 
-@import 'application/common';
-@import 'application/sections-common/*';
-
-
-//@import 'application/layouts/*';
+@import 'layouts/*';

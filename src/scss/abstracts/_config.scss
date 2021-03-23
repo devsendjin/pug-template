@@ -38,10 +38,5 @@ $columns: 12 !default;
 $gutter: 40px !default;
 $offset: 15px !default;
 
-
-//easings
-@import 'easings';
-
-
-@import 'mixins';
-@import 'css-lock';
+//other
+$trs: .2s; // default transition
