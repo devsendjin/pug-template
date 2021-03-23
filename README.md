@@ -29,10 +29,10 @@ About the concept of [incremental compilation](https://canonium.com/articles/emi
 
 | NPM command | Description |
 | ------ | ------ |
-| `dev:watch` | development mode with enabled server [browsersync](https://www.browsersync.io/) |
-| `dev:build` | build without minified styles and scripts
-| `prod:watch` | production mode with enabled server [browsersync](https://www.browsersync.io/) |
-| `prod:build` | build with minified styles and scripts
+| `watch:dev` | development mode with enabled server [browsersync](https://www.browsersync.io/) |
+| `build:dev` | build without minified styles and scripts
+| `watch:prod` | production mode with enabled server [browsersync](https://www.browsersync.io/) |
+| `build:prod` | build with minified styles and scripts
 
 
 | Makefile commands | Description |
