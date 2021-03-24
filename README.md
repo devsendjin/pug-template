@@ -5,7 +5,7 @@ About the concept of [incremental compilation](https://canonium.com/articles/emi
 
 *`npm install -g cross-env`* before using this template.
 
-* [UpCss](https://github.com/nepster-web/UpCss/) - css methodology/architecture used in project.
+* [The 7-1 Pattern](https://sass-guidelin.es/#the-7-1-pattern) - css architecture used in project.
 
 | Gulp task | Description |
 | ------ | ------ |

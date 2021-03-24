@@ -59,7 +59,5 @@
   ],
   "author": "Anatoliy Skichko",
   "license": "ISC",
-  "dependencies": {
-    "selectize": "^0.12.6"
-  }
+  "dependencies": {}
 }
