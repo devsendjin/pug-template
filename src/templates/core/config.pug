@@ -2,17 +2,20 @@
 - const __DEV__ = ['--pug-d', '--pug-dev', '--pug-development'].some(item => process.argv.includes(item));
 
 -
-	let ogUrl = '/index.html',
-			ogType = 'website',
-			ogTitle = 'Awesome title for facebook',
-			ogImage = '/images/cat.jpg',
-			ogImageAlt = 'Cat',
-			ogDescription = 'So awesome cat!',
-			ogSiteName = 'Awesome template',
-			ogLocale = 'ru_RU',
-			articleAuthor = 'devsendjin',
+  let pageTitle = 'Index',
+    bodyAttributes = {};
 
-			siteUrl = 'http://localhost:3000/',
+-
+  let headConfig = {
+    ogUrl: '/index.html',
+    ogType: 'website',
+    ogTitle: 'Awesome title for facebook',
+    ogImage: '/images/cat.jpg',
+    ogImageAlt: 'Cat',
+    ogDescription: 'So awesome cat!',
+    ogSiteName: 'Awesome template',
+    ogLocale: 'ru_RU',
+    articleAuthor: 'devsendjin',
 
-			pageTitle = 'Index',
-			bodyAttributes = {};
+    siteUrl: 'http://localhost:3333/',
+  }

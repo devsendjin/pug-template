@@ -141,16 +141,11 @@ const removeEmptyLines = () => {
 
 const server = () => {
 	browserSync.init({
-    /* server: {
+    server: {
 			baseDir: path.build_directory,
-      directory: disable,
-		}, */
-
-    // pretty urls
-    serveStatic: [path.build_directory],
-    serveStaticOptions: {
-      extensions: ["html"],
-    },
+      directory: true,
+		},
+    port: 3333,
     open: shouldOpenBrowser,
     reloadOnRestart: true,
     notify: false,
