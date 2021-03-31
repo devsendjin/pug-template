@@ -1,5 +1,5 @@
 @mixin debug {
-  outline: 1px solid #dddddd;
+  outline: 1px solid #ddd;
 }
 
 @mixin visually-hidden {
@@ -380,6 +380,7 @@
 // =============================================================================
 @mixin grid-row($offset: $offset){
 	display: flex;
+  flex-wrap: wrap;
 	margin-left: ($offset / -2);
 	margin-right: ($offset / -2);
 }
@@ -418,13 +419,4 @@
 		left: 50%;
 		transform: translateX(-50%);
 	}
-}
-
-// necessary for fancybox
-@function max($numbers...) {
-	@return m#{a}x(#{$numbers});
-}
-
-@function min($numbers...) {
-	@return m#{i}n(#{$numbers});
 }

@@ -1,0 +1,13 @@
+@function strip-unit($number) {
+  @return $number / ($number * 0 + 1);
+}
+
+// necessary for fancybox
+@function max($numbers...) {
+	@return m#{a}x(#{$numbers});
+}
+
+@function min($numbers...) {
+	@return m#{i}n(#{$numbers});
+}
+
