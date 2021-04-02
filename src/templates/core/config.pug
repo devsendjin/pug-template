@@ -1,21 +1,37 @@
 - const __PROD__ = ['--pug-p', '--pug-prod', '--pug-production'].some(item => process.argv.includes(item));
 - const __DEV__ = ['--pug-d', '--pug-dev', '--pug-development'].some(item => process.argv.includes(item));
 
+//- - const siteUrl = 'http://localhost:3333/';
+
 -
   let pageTitle = 'Index',
     bodyAttributes = {};
 
 -
-  let headConfig = {
-    ogUrl: '/index.html',
-    ogType: 'website',
-    ogTitle: 'Awesome title for facebook',
-    ogImage: '/images/cat.jpg',
-    ogImageAlt: 'Cat',
-    ogDescription: 'So awesome cat!',
-    ogSiteName: 'Awesome template',
-    ogLocale: 'ru_RU',
-    articleAuthor: 'devsendjin',
+  let openGraphData = [
+    { property: 'og:url', content: '/index.html' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:title', content: 'Awesome title for facebook' },
+    { property: 'og:image', content: '/images/cat.jpg' },
+    { property: 'og:image:alt', content: '/index.html' },
+    { property: 'og:description', content: 'Sample description' },
+    { property: 'og:site_name', content: 'Sample site name' },
+    { property: 'og:locale', content: 'ru_RU' },
+    { property: 'article:author', content: 'sample author' }
+  ];
+mixin openGraphMeta(data)
+  each item in data
+    meta(property=item.property content=item.content)
 
-    siteUrl: 'http://localhost:3333/',
-  }
+-
+  let twitterCardData = [
+    { name: 'twitter:card', content: 'product' },
+    { name: 'twitter:site', content: '@publisher_handle' },
+    { name: 'twitter:title', content: 'Page Title' },
+    { name: 'twitter:description', content: 'Page description less than 200 characters' },
+    { name: 'twitter:creator', content: '@author_handle' },
+    { name: 'twitter:image', content: 'http://www.example.com/image.jpg' },
+  ];
+mixin twitterCardMeta(data)
+  each item in data
+    meta(name=item.name content=item.content)
