@@ -1,13 +1,19 @@
-// =========================================
-// strip unit from value
-// =========================================
-@function strip-unit($number) {
-  @return $number / ($number * 0 + 1);
+// Removes the unit (e.g. px, em, rem) from a value, returning the number only.
+//
+// @param {Number} $num - Number to strip unit from.
+//
+// @returns {Number} The same number, sans unit.
+@function strip-unit($num) {
+  @return $num / ($num * 0 + 1);
 }
 
-// =========================================
 // String Replace
-// =========================================
+//
+// @param {String} $string - String which the search will be performed in.
+// @param {String} $search - Value to search.
+// @param {String} $search - Value whitch will be replaced with.
+//
+// @returns {String} The string with replaced value.
 @function str-replace($string, $search, $replace: "") {
 	$index: str-index($string, $search);
 
@@ -18,7 +24,7 @@
 	@return $string;
 }
 
-// necessary for fancybox
+// for fancybox working
 @function max($numbers...) {
 	@return m#{a}x(#{$numbers});
 }
