@@ -36,68 +36,22 @@ const svgSprite = require('gulp-svg-sprite');
 const cheerio = require('gulp-cheerio');
 const replace = require('gulp-replace');
 
-//server
-const browserSync = require('browser-sync').create();
-
+const {
+  __DEV__,
+  __PROD__,
+  MODE,
+  serverEnabled,
+  useGulpForJs,
+  terserOptions,
+  paths,
+  server,
+  browserSync,
+} = require('./config')
 
 emitty.language({
 	extensions: ['.pug'],
 	parser: require('@emitty/language-pug').parse
 });
-
-const MODE = process.env.NODE_ENV || 'development';
-const __PROD__ = process.env.NODE_ENV === 'production' || ['--p', '--prod', '--production'].some(item => process.argv.includes(item));
-const __DEV__ = process.env.NODE_ENV === 'development' || ['--d', '--dev', '--development'].some(item => process.argv.includes(item));
-
-const serverEnabled = ['--s', '--serve', '--server'].some(item => process.argv.includes(item));
-const shouldOpenBrowser = serverEnabled && ['--o', '--open'].some(item => process.argv.includes(item));
-
-const path = {
-	source_directory: './src',
-	build_directory: './build',
-	sourcemaps: '../sourcemaps',
-	get js() {
-		return {
-			src: `${this.source_directory}/js`,
-			build: `${this.build_directory}/js`,
-			watch: [
-        `${this.source_directory}/js/**/*.js`,
-        `!${this.source_directory}/js/pages`,
-        `!${this.source_directory}/js/pages/*.js`
-      ],
-		}
-	},
-	get jsPages() {
-		return {
-			src: `${this.source_directory}/js/pages/*.js`,
-			build: `${this.build_directory}/js`,
-			watch: `${this.source_directory}/js/pages/*.js`,
-		}
-	},
-	get scss() {
-		return {
-			src: `${this.source_directory}/scss/*.scss`,
-			build: `${this.build_directory}/css`,
-			watch: [
-        `${this.source_directory}/scss/**/*.scss`,
-      ],
-		}
-	},
-	get pug() {
-		return {
-			src: `${this.source_directory}/templates/*.pug`,
-			build: this.build_directory,
-			watch: `${this.source_directory}/templates/**/*.pug`,
-		}
-	},
-	get img() {
-		return {
-			src: `${this.source_directory}/images`,
-			build: this.build_directory,
-			watch: `${this.source_directory}/images/**/*`,
-		}
-	},
-}
 
 const emittyConfig = {
 	isWatchMode: false,
@@ -107,20 +61,6 @@ const emittyConfig = {
 		templates: undefined,
 	}
 }
-
-const terserOptions = {
-  warnings: false,
-  compress: {
-    comparisons: false,
-  },
-  parse: {},
-  mangle: true,
-  output: {
-    comments: false,
-    ascii_only: true,
-  },
-  sourceMap: false,
-};
 
 const removeEmptyLines = () => {
 	return through.obj(function(file, _encoding, callback) {
@@ -137,19 +77,6 @@ const removeEmptyLines = () => {
 		this.push(file);
 		callback();
 	})
-}
-
-const server = () => {
-	browserSync.init({
-    server: {
-			baseDir: path.build_directory,
-      directory: true,
-		},
-    port: 3333,
-    open: shouldOpenBrowser,
-    reloadOnRestart: true,
-    notify: false,
-  });
 }
 
 const getFilter = taskName => {
@@ -179,7 +106,7 @@ const templates = () => {
 		'max_preserve_newlines': 10000
 	};
 
-	return src(path.pug.src)
+	return src(paths.pug.src)
 		.pipe(plumber({
 			errorHandler: function(err) {
 				console.log('templates ', err.message);
@@ -190,12 +117,12 @@ const templates = () => {
 		.pipe(pug())
 		.pipe(htmlbeautify(htmlBeautifyOptions))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'HTML' })))
-		.pipe(dest(path.build_directory))
+		.pipe(dest(paths.build_directory))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const styles = () => {
-	return src(path.scss.src)
+	return src(paths.scss.src)
 		.pipe(plumber({
 			errorHandler: function(err) {
 				console.log('styles ', err.message);
@@ -213,15 +140,15 @@ const styles = () => {
 			})
 		]))
 		.pipe(gulpIf(__PROD__, csso({ restructure: true })))
-		.pipe(gulpIf(__DEV__, sourcemaps.write(path.sourcemaps)))
+		.pipe(gulpIf(__DEV__, sourcemaps.write(paths.sourcemaps)))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'CSS' })))
-		.pipe(dest(path.scss.build))
+		.pipe(dest(paths.scss.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const scriptsWebpack = () => {
 	const jsFiles = [
-		{ entry: 'bundle', path: `${path.js.src}/bundle.js` },
+		{ entry: 'bundle', path: `${paths.js.src}/bundle.js` },
 	];
 
 	return src(jsFiles.map(item => item.path), { since: lastRun(scriptsWebpack) })
@@ -269,15 +196,15 @@ const scriptsWebpack = () => {
 		}))
 		.pipe(gulpIf(__PROD__, removeEmptyLines()))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS' })))
-		.pipe(dest(path.js.build))
+		.pipe(dest(paths.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const scripts = () => {
 	return src([
-    `${path.js.src}/vendor/jquery.min.js`,
-    `${path.js.src}/lib.js`,
-    `${path.js.src}/bundle.js`,
+    `${paths.js.src}/vendor/jquery.min.js`,
+    `${paths.js.src}/lib.js`,
+    `${paths.js.src}/bundle.js`,
 		])
 		.pipe(plumber({
 			errorHandler: function(err) {
@@ -287,19 +214,20 @@ const scripts = () => {
 		}))
 		.pipe(gulpIf(__DEV__, sourcemaps.init()))
 		.pipe(gulpIf(__PROD__, babel({
-			presets: ['@babel/env']
+			presets: ['@babel/env'],
+      plugins: ['@babel/plugin-proposal-class-properties']
 		})))
 		.pipe(gulpIf(__PROD__, terser(terserOptions)))
 		.pipe(concat('bundle.js'))
 		.pipe(gulpIf(__PROD__, removeEmptyLines()))
-		.pipe(gulpIf(__DEV__, sourcemaps.write(path.sourcemaps)))
+		.pipe(gulpIf(__DEV__, sourcemaps.write(paths.sourcemaps)))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS' })))
-		.pipe(dest(path.js.build))
+		.pipe(dest(paths.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const scriptsPages = () => {
-	return src(path.jsPages.src)
+	return src(paths.jsPages.src)
 		.pipe(plumber({
 			errorHandler: function(err) {
 				console.log('scriptsPages ', err.message);
@@ -312,24 +240,24 @@ const scriptsPages = () => {
 		})))
 		.pipe(gulpIf(__PROD__, terser(terserOptions)))
 		.pipe(gulpIf(__PROD__, removeEmptyLines()))
-		.pipe(gulpIf(__DEV__, sourcemaps.write(path.sourcemaps)))
+		.pipe(gulpIf(__DEV__, sourcemaps.write(paths.sourcemaps)))
 		.pipe(gulpIf(__PROD__, size({ showFiles: true, title: 'JS pages' })))
-		.pipe(dest(path.js.build))
+		.pipe(dest(paths.js.build))
 		.pipe(gulpIf(serverEnabled, browserSync.stream()));
 }
 
 const copyImages = () => {
 	return src([
-			`${path.img.src}/**/*`,
-			`!${path.img.src}/svg/sprite`,
-			`!${path.img.src}/svg/sprite/*`
-		], { base: path.source_directory, since: lastRun(copyImages) })
+			`${paths.img.src}/**/*`,
+			`!${paths.img.src}/svg/sprite`,
+			`!${paths.img.src}/svg/sprite/*`
+		], { base: paths.source_directory, since: lastRun(copyImages) })
 		.pipe(remember('copyImages'))
-		.pipe(dest(path.build_directory))
+		.pipe(dest(paths.build_directory))
 }
 
 const copyFiles = () => {
-	const js = src(`${path.js.src}/vendor/lazysizes.min.js`)
+	const js = src(`${paths.js.src}/vendor/lazysizes.min.js`)
 		.pipe(gulpIf(__PROD__, terser({
 			warnings: false,
 			compress: {
@@ -343,16 +271,16 @@ const copyFiles = () => {
 			},
 			sourceMap: false,
 		})))
-		.pipe(dest(path.js.build));
+		.pipe(dest(paths.js.build));
 
-	const favicons = src(`${path.source_directory}/favicons/*`)
-		.pipe(dest(`${path.build_directory}/favicons`));
+	const favicons = src(`${paths.source_directory}/favicons/*`)
+		.pipe(dest(`${paths.build_directory}/favicons`));
 
 	return merge(js, favicons);
 };
 
 const createSvgSprite = () => {
-	return src(`${path.img.src}/svg/sprite/*.svg`)
+	return src(`${paths.img.src}/svg/sprite/*.svg`)
 		.pipe(plumber({
 			errorHandler: function(err) {
 				console.log(err.message);
@@ -384,22 +312,26 @@ const createSvgSprite = () => {
 				}
 			},
 		}))
-		.pipe(dest(`${path.img.src}/svg`))
+		.pipe(dest(`${paths.img.src}/svg`))
 }
 
 const watchTask = () => {
-	// watch(`${path.pug.src}/**/*.pug`, templates)
-	watch(path.pug.watch, templates)
+	watch(paths.pug.watch, templates)
 		.on('all', (event, changed) => {
-			// Logs the changed file for the templates task
+			// write the changed file name to emmity config object
 			emittyConfig.watch.templates = changed;
 		})
 
-	watch(path.js.watch, scripts);
-	watch(path.jsPages.watch, scriptsPages);
+  watch(paths.scss.watch, styles)
+  watch(paths.img.watch, copyImages);
 
-	watch(path.scss.watch, styles)
-	watch(path.img.watch, copyImages);
+  if (useGulpForJs) {
+    watch(paths.js.watch, scripts);
+    watch(paths.jsPages.watch, scriptsPages);
+  } else {
+    watch(paths.js.watch).on('change', () => setTimeout(browserSync.reload, 300)); // reload while webpack bundling js
+    // watch(paths.js.watch).on('change', browserSync.reload); // reload while webpack bundling js
+  }
 }
 
 // need for templates task
@@ -411,7 +343,9 @@ const watchInit = done => {
 
 const defaultTask = serverEnabled ? parallel(series(watchInit, templates, watchTask), server) : series(watchInit, templates, watchTask);
 
-const build = parallel(templates, styles, scripts, copyImages, copyFiles);
+const build = useGulpForJs
+  ? parallel(templates, styles, copyImages, copyFiles, scripts)
+  : parallel(templates, styles, copyImages, copyFiles);
 
 task('default', defaultTask);
 task('server', server);
@@ -424,3 +358,12 @@ task('copy:img', copyImages);
 task('copy:files', copyFiles);
 task('templates', templates);
 task('build', build);
+
+module.exports = {
+  MODE,
+  __DEV__,
+  __PROD__,
+  serverEnabled,
+  terserOptions,
+  browserSync
+}

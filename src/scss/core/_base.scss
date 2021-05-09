@@ -1,48 +1,50 @@
-html.fixed,
-html.fixed body {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-}
-
-html, body {
+html,
+body {
   height: 100%;
 }
 
 body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  color: $black;
+  font-weight: 400;
+  font-size: 16px;
   font-family: $montserrat;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-weight: 400;
-  font-size: 16px;
   line-height: 1.6;
-  color: $black;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  background-color: #ffffff;
+  background-color: #fff;
 
   .main {
     flex-grow: 1;
   }
 }
 
+html.fixed,
+html.fixed body {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body.lazyload-fade {
-  .lazyload, .lazyloading {
+  .lazyload,
+  .lazyloading {
     opacity: 0;
-    transition: opacity .6s;
+    transition: opacity 0.6s;
   }
 
   .lazyloaded {
     opacity: 1;
-    transition: opacity .6s;
+    transition: opacity 0.6s;
   }
 }
 
 .container {
   max-width: 1300px;
   margin: 0 auto;
-  padding-left: 15px;
   padding-right: 15px;
+  padding-left: 15px;
 }
