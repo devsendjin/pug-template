@@ -1,42 +1,51 @@
-//fonts
 $default-ui-common-fonts:
-    /* macOS emoji */ 'Apple Color Emoji',
-    /* Windows emoji */ 'Segoe UI Emoji',
-    /* Windows emoji */ 'Segoe UI Symbol',
-    /* Linux emoji */ 'Noto Color Emoji';
+  /* macOS emoji */ "Apple Color Emoji",
+  /* Windows emoji */ "Segoe UI Emoji",
+  /* Windows emoji */ "Segoe UI Symbol",
+  /* Linux emoji */ "Noto Color Emoji";
 
 $default-ui-monospaced-fonts:
-		/* macOS 10.10+ */ 'Menlo',
-    /* Windows 6+ */ 'Consolas',
-    /* Android 4+ */ 'Roboto Mono',
-    /* Ubuntu 10.10+ */ 'Ubuntu Monospace',
-    /* KDE Plasma 5+ */ 'Noto Mono',
-    /* KDE Plasma 4+ */ 'Oxygen Mono',
-    /* Linux/OpenOffice fallback */ 'Liberation Mono',
-    /* fallback */ monospace,
-    $default-ui-common-fonts;
+  /* macOS 10.10+ */ "Menlo",
+  "Fira Code",
+  "Cascadia Code",
+  /* Windows 6+ */ "Consolas",
+  "Inconsolata",
+  "Monaco",
+  /* Android 4+ */ "Roboto Mono",
+  "Droid Sans Mono",
+  "Ubuntu Mono",
+  /* Ubuntu 10.10+ */ "Ubuntu Monospace",
+  "Source Code Pro",
+  /* KDE Plasma 5+ */ "Noto Mono",
+  /* KDE Plasma 4+ */ "Oxygen Mono",
+  /* Linux/OpenOffice fallback */ "Liberation Mono",
+  "DejaVu Sans Mono",
+  "Bitstream Vera Sans Mono",
+  /* fallback */ monospace,
+  $default-ui-common-fonts;
 
-$default-ui-system-fonts: system-ui,
+$default-ui-system-fonts:
+  system-ui,
   /* macOS 10.11-10.12 */ -apple-system,
-  /* Windows 6+ */ 'Segoe UI',
-  /* Android 4+ */ 'Roboto',
-  /* Ubuntu 10.10+ */ 'Ubuntu',
-  /* Gnome 3+ */ 'Cantarell',
-  /* KDE Plasma 5+ */ 'Noto Sans',
+  /* Windows 6+ */ "Segoe UI",
+  /* Android 4+ */ "Roboto",
+  /* Ubuntu 10.10+ */ "Ubuntu",
+  /* Gnome 3+ */ "Cantarell",
+  /* KDE Plasma 5+ */ "Noto Sans",
   /* fallback */ sans-serif,
   $default-ui-common-fonts;
 
-$montserrat: 'Montserrat', $default-ui-system-fonts;
+$primary-font: "Montserrat", $default-ui-system-fonts;
 
+$default-font-size: 16px;
 
-//colors
+// colors
 $black: #000;
 
-
-//variables for grid mixins
+// variables for grid mixins
 $columns: 12 !default;
 $gutter: 40px !default;
 $offset: 15px !default;
 
-//other
-$trs: .2s; // default transition
+// other
+$trs: 0.2s; // default transition

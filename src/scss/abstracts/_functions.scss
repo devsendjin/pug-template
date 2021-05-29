@@ -14,22 +14,21 @@
 // @param {String} $search - Value whitch will be replaced with.
 //
 // @returns {String} The string with replaced value.
-@function str-replace($string, $search, $replace: "") {
-	$index: str-index($string, $search);
+@function str-replace($string, $search, $replace: '') {
+  $index: str-index($string, $search);
 
-	@if $index {
-		@return str-slice($string, 1, $index - 1) + $replace + str-replace(str-slice($string, $index + str-length($search)), $search, $replace);
-	}
+  @if $index {
+    @return str-slice($string, 1, $index - 1) + $replace + str-replace(str-slice($string, $index + str-length($search)), $search, $replace);
+  }
 
-	@return $string;
+  @return $string;
 }
 
 // for fancybox working
 @function max($numbers...) {
-	@return m#{a}x(#{$numbers});
+  @return m#{a}x(#{$numbers});
 }
 
 @function min($numbers...) {
-	@return m#{i}n(#{$numbers});
+  @return m#{i}n(#{$numbers});
 }
-

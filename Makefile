@@ -4,21 +4,25 @@ all: placeholder;
 
 placeholder:
 	@echo 'Hey, are you familiar with makefile?' && \
-	echo 'Take a look at project Makefile'
+	@echo 'Take a look at project Makefile'
 
-start: clean dev watch
+start:
+	@npm run watch:dev:gulp
+
+start-webpack:
+	@./node_modules/.bin/concurrently "npm run watch:dev:gulp" "npm run watch:dev:webpack"
 
 dev: clean
-	@npm run build:dev
+	@npm run build:dev:gulp
 
 prod: clean
-	@npm run build:prod
+	@npm run build:prod:gulp
 
 watch:
 	@npm run watch:dev
 
 clean:
-	@rm -rf build/
+	@npm run clean
 
 node-refresh:
 	@rm -rf node_modules/ && npm install

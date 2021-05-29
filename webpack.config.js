@@ -2,28 +2,19 @@ const Path = require('path');
 const Webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 const TerserPlugin = require("terser-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-class PostCompile {
-  constructor(options) {
-    this.options = {
-      serverEnabled: false,
-      browserSyncInstance: null,
-      ...options,
-    };
-  }
+const buildConfig = require('./config');
 
-  apply(compiler) {
-    compiler.hooks.afterCompile.tap('post-compile', (params) => {
-      if (this.options.serverEnabled && this.options.browserSyncInstance) {
-        this.options.browserSyncInstance.reload();
-      }
-    });
-  }
- }
+const shouldWatch = process.argv.includes('--watch');
+const shouldBuild = process.argv.includes('--build');
 
-const createWebpackConfig = buildConfig => ({
+ const webpackConfig = {
   mode: buildConfig.MODE,
-  entry: Path.join(process.cwd(), 'src/js/bundle.js'),
+  bail: true,
+  entry: {
+    bundle: Path.join(process.cwd(), 'src/js/bundle-wepback-test.js')
+  },
   output: {
     path: Path.join(process.cwd(), 'build/js'),
     filename: 'bundle.js',
@@ -35,20 +26,31 @@ const createWebpackConfig = buildConfig => ({
   resolve: {
     extensions: ['.js', '.json'],
   },
-  watchOptions: {
-    aggregateTimeout: 600,
-    ignored: /node_modules/,
-  },
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: false,
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: true,
+            },
+          }
+        ],
+      },
       {
         test: /\.js$/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-            plugins: ['@babel/plugin-proposal-class-properties'],
-          },
+          options: buildConfig.babelOptions,
         },
         exclude: /node_modules/,
       },
@@ -80,12 +82,13 @@ const createWebpackConfig = buildConfig => ({
       __PROD__: buildConfig.__PROD__,
     }),
     new WebpackBar({}),
-    new PostCompile({
-       serverEnabled: buildConfig.serverEnabled,
-       browserSyncInstance: buildConfig.browserSync,
-      }),
+    new MiniCssExtractPlugin({
+      filename: 'build/css/[name].css',
+    })
   ],
-});
+}
+
+const compiler = Webpack(webpackConfig);
 
 const compilerErrorHandler = (err, stats) => {
   if (err) {
@@ -107,22 +110,21 @@ const compilerErrorHandler = (err, stats) => {
   }
 };
 
-module.exports = buildConfig => {
-  const webpackConfig = createWebpackConfig(buildConfig);
-  const compiler = Webpack(webpackConfig);
+const watch = () => {
+  return compiler.watch({
+    aggregateTimeout: 300,
+    ignored: /node_modules/,
+  }, compilerErrorHandler);
+}
 
-  const webpackWatch = () => {
-    console.log('webpackWatch');
-    return compiler.watch({
-      aggregateTimeout: 300,
-    }, compilerErrorHandler);
-  }
+const build = () => {
+  return compiler.run(compilerErrorHandler);
+}
 
-  const webpackBuild = () => {
-    return compiler.run(compilerErrorHandler);
-  }
-  return {
-    webpackBuild,
-    webpackWatch,
-  }
+if (shouldWatch) {
+  watch();
+} else if(shouldBuild) {
+  build();
+} else {
+  console.error('Missing flag "--watch" or "--build"');
 }
