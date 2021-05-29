@@ -55,7 +55,6 @@
     "through2": "^4.0.2",
     "webpack": "^5.31.2",
     "webpack-cli": "^4.6.0",
-    "webpack-stream": "^6.1.2",
     "webpackbar": "^5.0.0-3"
   },
   "repository": {

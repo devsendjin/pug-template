@@ -1,5 +1,4 @@
 const { src, dest, parallel, series, task, watch, lastRun } = require('gulp');
-const webpackStream = require('webpack-stream');
 
 //utils
 const sourcemaps = require('gulp-sourcemaps');
