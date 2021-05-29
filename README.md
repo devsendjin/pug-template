@@ -9,6 +9,7 @@ About the concept of [incremental compilation](https://canonium.com/articles/emi
 
 | Env variable | Options | Default | Description |
 | ------ | ------ | ------ | ------ |
+| `NODE_ENV` | development <br /> production | development | build process depends on this variable |
 | `JS_BUILD_TOOL` | gulp <br /> webpack | gulp | use gulp or webpack for js bundling |
 
 | Gulp task | Description |
@@ -48,4 +49,3 @@ About the concept of [incremental compilation](https://canonium.com/articles/emi
 | `start-webpack` | start watching js with webpack, other assets with gulp and server, mode `development` [browsersync](https://www.browsersync.io/) |
 | `dev` | remove `build` directory + building with `gulp`, mode `development` |
 | `prod` | remove `build` directory + building with `gulp`, with minification |
-| `watch` | remove `build` directory + building with `gulp`, with minification |
