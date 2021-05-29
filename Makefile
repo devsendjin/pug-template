@@ -18,9 +18,6 @@ dev: clean
 prod: clean
 	@npm run build:prod:gulp
 
-watch:
-	@npm run watch:dev
-
 clean:
 	@npm run clean
 

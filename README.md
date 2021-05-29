@@ -7,12 +7,16 @@ About the concept of [incremental compilation](https://canonium.com/articles/emi
 
 * [The 7-1 Pattern](https://sass-guidelin.es/#the-7-1-pattern) - css architecture used in project.
 
+| Env variable | Options | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `JS_BUILD_TOOL` | gulp <br /> webpack | gulp | use gulp or webpack for js bundling |
+
 | Gulp task | Description |
 | ------ | ------ |
 | `server` | run [browsersync](https://www.browsersync.io/) |
 | `sprite` | create `sprite.svg`(from svg files (*/build/img/svg/sprite*) and `_sprite.scss` (inside */dev/scss/modules*) |
 | `css` | build styles |
-| `js` | transpile *js* files |
+| `js` | transpile *js* files (if JS_BUILD_TOOL === gulp) |
 | `copy:img` | copy images from source to build directory |
 | `copy:files` | copy other files from source to build directory |
 | `templates` | build *html* pages from *pug* |
@@ -29,15 +33,19 @@ About the concept of [incremental compilation](https://canonium.com/articles/emi
 
 | NPM command | Description |
 | ------ | ------ |
-| `watch:dev` | development mode with enabled server [browsersync](https://www.browsersync.io/) |
-| `build:dev` | build without minified styles and scripts
-| `watch:prod` | production mode with enabled server [browsersync](https://www.browsersync.io/) |
-| `build:prod` | build with minified styles and scripts
+| `watch:dev:gulp` | `gulp` development mode with enabled server [browsersync](https://www.browsersync.io/) |
+| `build:dev:gulp` | `gulp` build without minified styles and scripts |
+| `build:prod:gulp` | `gulp` build with minified styles and scripts |
+| `watch:dev:webpack` | `webpack` development mode, watching files |
+| `build:dev:webpack` | `webpack` development mode, bundling js without minification |
+| `build:prod:webpack` | `webpack` bundling js with minification |
+| `clean` | removing `build` directory |
 
 
 | Makefile commands | Description |
 | ------ | ------ |
-| `start` | remove *build* directory, copy *assets* and build *css, js, pug* in development mode, start watching and server [browsersync](https://www.browsersync.io/) |
-| `clear` | remove *build* directory
-| `pull` | pull from *master* branch |
-| `push` | push to *master* branch |
+| `start` | start watching and server, mode `development` [browsersync](https://www.browsersync.io/) |
+| `start-webpack` | start watching js with webpack, other assets with gulp and server, mode `development` [browsersync](https://www.browsersync.io/) |
+| `dev` | remove `build` directory + building with `gulp`, mode `development` |
+| `prod` | remove `build` directory + building with `gulp`, with minification |
+| `watch` | remove `build` directory + building with `gulp`, with minification |
