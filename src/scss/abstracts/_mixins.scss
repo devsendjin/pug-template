@@ -21,14 +21,11 @@
 	user-select: none;           // Non-prefixed version
 }
 
-// =========================================
+// ========================
 // placeholder with prefix
-// =========================================
+// ========================
 @mixin placeholder {
 	&::-webkit-input-placeholder {
-		@content
-	}
-	&:-moz-placeholder {
 		@content
 	}
 	&::-moz-placeholder {
@@ -42,9 +39,9 @@
 	}
 }
 
-// =========================================
+// ===============
 // svg background
-// =========================================
+// ===============
 @mixin svgbg($width: 0, $height: 0, $url: '') {
   content: '';
   display: block;
@@ -57,9 +54,9 @@
   background-position: center;
 }
 
-// =========================================
+// ==========
 // Font Face
-// =========================================
+// ==========
 @mixin font-face(
 	$name,
 	$path,
@@ -101,16 +98,16 @@
 	}
 }
 
-// =========================================
+// ==========================
 // gradient background-image
-// =========================================
+// ==========================
 @mixin bgi($color: #000000, $height: 1px, $bottom: 0) {
 	background-image: linear-gradient(to top, transparent $bottom, $color $bottom, $color $height+$bottom, transparent $height+$bottom);
 }
 
-// =========================================
+// =====================
 // underline animation
-// =========================================
+// =====================
 @mixin underline-end-state(
 	$bgSizeX: 100%,
 	$bgSizeY: 100%,
@@ -183,23 +180,23 @@
 	}
 }
 
-// =========================================
+// =============================================
 // make scroll bar invisible, but still working
-// =========================================
+// =============================================
 @mixin invisibleScrollbar {
-	-ms-overflow-style: none; /* Internet Explorer 10+ */
-	scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none; // Internet Explorer 10+
+	scrollbar-width: none; // Firefox
 	&::-webkit-scrollbar {
-		display: none; /* Safari and Chrome */
+		display: none; // Safari and Chrome
 		width: 0;
 		height: 0;
 	}
 	-ms-overflow-style: none; // EDGE
 }
 
-// =========================================
+// =================
 // custom scrollbar
-// =========================================
+// =================
 @mixin customScrollbar(
   $thumbColor: #fcee58,
   $width: 16px,
@@ -236,9 +233,9 @@
 	// }
 }
 
-// =========================================
+// =====================
 // reset button styles
-// =========================================
+// =====================
 @mixin resetBtn($bgc: transparent) {
 	border: none;
 	outline: none;
@@ -250,9 +247,9 @@
 	}
 }
 
-// =========================================
+// ==================
 // reset text styles
-// =========================================
+// ==================
 @mixin resetText($font-family: sans-serif) {
 	font-family: $font-family;
 	font-style: normal;
@@ -270,20 +267,43 @@
 	word-wrap: normal;
 }
 
+// ===============
+// block overlay
+// ===============
+@mixin overlay($bgc: null, $pseudoElement: before, $z-index: null) {
+	&:#{$pseudoElement} {
+		content: '';
+		position: absolute;
+		display: block;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
 
-/**
-* Sass CSS triangle mixin, create any kind of triangles with ease
+		@if($bgc != null) {
+			background-color: $bgc;
+		}
 
-* Use:
-* @include triangle(direction,width,height,color);
+		@if($z-index != null) {
+			z-index: $z-index;
+		}
+	}
+}
 
-* Example:
-* $square: 50px;
-* $color: red;
-* selector {
-*	 @include triangle(bottomright,$square,$square,$color);
-* }
-*/
+/////////////////////////////////////////////////////////////////////
+// =========================================                       //
+// Sass CSS triangle mixin, create any kind of triangles with ease //
+// =========================================                       //
+// Use:                                                            //
+// @include triangle(direction,width,height,color);                //
+// =========================================                       //
+// Example:                                                        //
+// $square: 50px;                                                  //
+// $color: red;                                                    //
+// selector {                                                      //
+// 	@include triangle(bottomright,$square,$square,$color);         //
+// }                                                               //
+/////////////////////////////////////////////////////////////////////
 @mixin triangle($direction, $sizeH, $sizeV, $color){
 	content: '';
 	display: block;
@@ -326,26 +346,25 @@
 	}
 }
 
-//Принцип работы сетки: (описание функции calcWidth)
-//везде отнимаем "-1" т.к. после последней колонки нет отступа
-//100% - (#{$gutter} * (#{$columns} - 1))  -  вычисляем сумму ширин всех колонок текущего контейнера без отступо между колонками
-//100% - (<отступ между колонками> * <общее кол-во колонок> - <1 колонка>))
+// Принцип работы сетки: (описание функции calcWidth)
+// везде отнимаем "-1" т.к. после последней колонки нет отступа
+// 100% - (#{$gutter} * (#{$columns} - 1))  -  вычисляем сумму ширин всех
+// колонок текущего контейнера без отступо между колонками
 //
-//((100% - (#{$gutter} * (#{$columns} - 1))) / #{$columns})  -  вычисляем ширину 1-й колонки без отступов между колонками
-//100% - (<отступ между колонками> * (<общее кол-во колонок> - <1 колонка>)) / <общее кол-во колонок>
+// 100% - (<отступ между колонками> * <общее кол-во колонок> - <1 колонка>))
+// ((100% - (#{$gutter} * (#{$columns} - 1))) / #{$columns})  -  вычисляем ширину 1-й колонки без отступов между колонками
 //
-//calc(((100% - (#{$gutter} * (#{$columns} - 1))) / #{$columns}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift})  -  считаем ширину колонок блока + отступы между
-// колонками + добавляем отступы между колоками, если нужно сдвинуть блок
+// 100% - (<отступ между колонками> * (<общее кол-во колонок> - <1 колонка>)) / <общее кол-во колонок>
+// calc(((100% - (#{$gutter} * (#{$columns} - 1))) / #{$columns}) * #{$num} + #{$gutter} * (#{$num} - 1) + #{$gutterShift}) - считаем
+// ширину колонок блока + отступы между колонками + добавляем отступы между колоками, если нужно сдвинуть блок
+//
 // (100% - (<отступ между колонками> * <общее кол-во колонок> - <1 колонка>)) / <общее кол-во колонок> * <требуемое кол-во колонок> + <отступ> * (<требуемое кол-во колонок> - <1 колонка> + <отступ между колонками(может быть отрицательный)>)
 
-/**
- * Как использовать:
- * $gutter - опциональный параметр
- *
- * @include width(7, $gutter);
- * @include pullRight(1);
- * margin-right: $gutter;   or   margin-left: $gutter;
- */
+// Как использовать:
+// $gutter - опциональный параметр
+// @include width(7, $gutter);
+// @include pullRight(1);
+// margin-right: $gutter; or margin-left: $gutter;
 
 @function calcWidth(
   $num,
@@ -366,7 +385,7 @@
 	width: calcWidth($num, $gutterShift, $columns, $gutter);
 }
 
-//$property - задаём или margin или padding, по умолчанию margin
+// $property - задаём или margin или padding, по умолчанию margin
 // добавляем отступ слева
 @mixin pullLeft(
   $num,
@@ -378,7 +397,7 @@
 	#{$property}-left: calcWidth($num, $gutterShift, $columns, $gutter);
 }
 
-//$property - задаём или margin или padding, по умолчанию margin
+// $property - задаём или margin или padding, по умолчанию margin
 // добавляем отступ справа
 @mixin pullRight(
   $num,
@@ -390,9 +409,9 @@
 	#{$property}-right: calcWidth($num, $gutterShift, $columns, $gutter);
 }
 
-// =========================================
+// =====================
 // custom flex-box grid
-// =========================================
+// =====================
 @mixin grid-row($offset: $offset){
 	display: flex;
   flex-wrap: wrap;
@@ -409,18 +428,18 @@
 	width: #{calc(100% / #{$columns} * #{$n} - #{$offset})};
 }
 
-// =========================================
+// ======================
 // detect IE10 and above
-// =========================================
+// ======================
 @mixin IE10up(){
 	@media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
 		@content;
 	}
 }
 
-// =========================================
+// ==========
 // centering
-// =========================================
+// ==========
 @mixin center($axis: 'xy') {
 	position: absolute;
 	@if $axis == 'xy' {

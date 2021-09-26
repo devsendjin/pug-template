@@ -1,4 +1,4 @@
-const Path = require('path');
+const path = require('path');
 const Webpack = require('webpack');
 const WebpackBar = require('webpackbar');
 const TerserPlugin = require("terser-webpack-plugin");
@@ -13,10 +13,10 @@ const shouldBuild = process.argv.includes('--build');
   mode: buildConfig.MODE,
   bail: true,
   entry: {
-    bundle: Path.join(process.cwd(), 'src/js/bundle-wepback-test.js')
+    bundle: path.join(process.cwd(), 'src/js/bundle-wepback-test.js')
   },
   output: {
-    path: Path.join(process.cwd(), 'build/js'),
+    path: path.join(process.cwd(), 'dist/js'),
     filename: 'bundle.js',
     sourceMapFilename: 'sourcemaps/[name][ext].map', // works only if devtool='source-map'
     publicPath: '/',
@@ -83,7 +83,7 @@ const shouldBuild = process.argv.includes('--build');
     }),
     new WebpackBar({}),
     new MiniCssExtractPlugin({
-      filename: 'build/css/[name].css',
+      filename: 'dist/css/[name].css',
     })
   ],
 }

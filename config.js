@@ -1,8 +1,8 @@
-const Path = require("path");
+const path = require("path");
 const dotenv = require("dotenv");
 
 const envConfig = dotenv.config({
-  path: Path.resolve(process.cwd(), ".env"),
+  path: path.resolve(process.cwd(), ".env"),
 });
 if (envConfig.error) {
   throw envConfig.error;
@@ -17,14 +17,10 @@ const __PROD__ =
   MODE === "production" ||
   ["--p", "--prod", "--production"].some((item) => process.argv.includes(item));
 const __DEV__ =
-  !__PROD__ &&
-  (MODE === "development" ||
+  !__PROD__ ||
     ["--d", "--dev", "--development"].some((item) =>
       process.argv.includes(item)
-    ));
-
-console.log("__PROD__ ", __PROD__);
-console.log("__DEV__ ", __DEV__);
+    );
 
 const serverEnabled = ["--s", "--serve", "--server"].some((item) =>
   process.argv.includes(item)
@@ -65,7 +61,7 @@ const terserOptions = {
 
 const paths = {
   source_directory: "./src",
-  build_directory: "./build",
+  build_directory: "./dist",
   sourcemaps: "../sourcemaps",
   get js() {
     return {
