@@ -1,32 +1,87 @@
-/**
- * CSS Lock
- */
-@function cssLock(
-  $propValuesFrom: (),
-  $propValuesTo: (),
-  $sizeFrom: 0,
-  $sizeTo: 0
+@function concatValues($values, $postfix: "px", $delimiter: " ") {
+  @if (length($values) == 1) {
+    @return unquote("#{$values}#{$postfix}");
+  }
+
+  $concatenated: "";
+  @for $i from 1 through length($values) {
+    $currentValues: nth($values, $i);
+    @if (length($currentValues) > 1) {
+      $concatenated: concatValues($currentValues);
+    } @else {
+      @if (length($values) == $i) {
+        $concatenated: str-insert(
+          $concatenated,
+          "#{$currentValues}#{$postfix}",
+          -1
+        );
+      } @else {
+        $concatenated: str-insert(
+          $concatenated,
+          "#{$currentValues}#{$postfix}",
+          -1
+        ) + $delimiter;
+      }
+    }
+  }
+
+  @return unquote($concatenated)
+}
+
+// CSS Lock
+@function cssLock($valueFrom, $valueTo, $sizeFrom, $sizeTo) {
+  @return calc(#{$valueFrom}px + (#{$valueFrom} - #{$valueTo}) * (100vw - #{$sizeFrom}px) / (#{$sizeFrom} - #{$sizeTo}));
+}
+
+// responsiveValue
+// @example
+// font-size: responsiveValue(
+//     $valuesFrom: (40 20),
+//     $valuesTo: (30 10),
+//     $sizeFrom: 768,
+//     $sizeTo: 375
+// );
+//
+// or
+//
+// font-size: responsiveValue(
+//     $valuesFrom: (40),
+//     $valuesTo: (30),
+//     $sizeFrom: 768,
+//     $sizeTo: 375
+// );
+@function responsiveValue(
+  $valuesFrom: null,
+  $valuesTo: null,
+  $sizeFrom: null,
+  $sizeTo: null
 ) {
   $propValue: "";
 
-  @if (length($propValuesFrom) != length($propValuesTo)) {
-    @error "length of 'propValuesFrom' should be equal to length of 'propValuesTo'";
+  @if (
+      $valuesFrom == null or
+      $valuesTo == null or
+      $sizeFrom == null or
+      $sizeTo == null
+    ) {
+    @error "One of params not settled!!!";
+  } @else if (length($valuesFrom) != length($valuesTo)) {
+    @error "'valuesFrom' != 'valuesTo' in 'responsiveValue' mixin";
   }
 
-  @for $i from 1 through length($propValuesFrom) {
-    @if ((nth($propValuesFrom, $i) == 0) and nth($propValuesTo, $i) == 0) {
+  @for $i from 1 through length($valuesFrom) {
+    @if (nth($valuesFrom, $i) == 0 and nth($valuesTo, $i) == 0) {
       $propValue: str-insert($propValue, "0", -1) + " ";
     } @else {
       $propValue:
         str-insert(
           $propValue,
-          calc(
-            #{nth($propValuesFrom, $i)}px +
-            (#{nth($propValuesFrom, $i)} -
-            #{nth($propValuesTo, $i)}) *
-            (100vw - #{$sizeFrom}px) /
-            (#{$sizeFrom} - #{$sizeTo})
-          ),
+          cssLock(
+              nth($valuesFrom, $i),
+              nth($valuesTo, $i),
+              $sizeFrom,
+              $sizeTo
+            ),
           -1
         ) + " ";
     }
@@ -35,23 +90,25 @@
   @return unquote($propValue);
 }
 
-/**
- * generates css property for specified values
- * usage:
-	:root {
-    @include responsiveProperty($propName: "--fz54", $breakpoints: (1900: 54, 1100: 45, 768: 35, 350: 20));
-	}
-	.your-class {
-    font-size: var(--fz54);
-	}
-  OR:
-  .your-class {
-    @include responsiveProperty($propName: "font-size", $breakpoints: (1900: 54, 1100: 45, 768: 35, 350: 20));
-	}
- * @param  {sass array} $breakPoints: () map list of breakpoints
- * @param  {string} $propName: () name of css property
- * @return {css property} property for each breakpoint
- */
+
+// generates css property for specified values
+// usage:
+//
+// :root {
+//   @include responsiveProperty($propName: "--fz54", $breakpoints: (1900: 54, 1100: 45, 768: 35, 350: 20));
+// }
+// .your-class {
+//   font-size: var(--fz54);
+// }
+//
+// or
+//
+// .your-class {
+//   @include responsiveProperty($propName: "font-size", $breakpoints: (1900: 54, 1100: 45, 768: 35, 350: 20));
+// }
+// @param  {sass array} $breakPoints: () map list of breakpoints
+// @param  {string} $propName: () name of css property
+// @return {css property} property for each breakpoint
 @mixin responsiveProperty(
   $propName: null,
   $breakpoints: ()
@@ -63,20 +120,18 @@
   $breakpointsLength: length($screenSizes);
 
   @if ($propName == null) {
-    $propName: "--v#{nth($screenSizes, 1)}";
+    @error "propName can not be empty!";
   }
 
+  $propValue: "";
+
   // initial variable value
-  #{$propName}: #{nth($propValues, 1)}px;
+  #{$propName}: concatValues($propValues);
 
   // generating media queries
   @for $i from 1 through length($screenSizes) {
-    /**
-		 * currentBreakpoint - current breakpoint
-		 * $currentVariableValue - variable value for current breakpoint
-		 */
-    $currentBreakpoint: nth($screenSizes, $i);
-    $currentPropValue: nth($propValues, $i);
+    $currentBreakpoint: nth($screenSizes, $i); // current breakpoint
+    $currentPropValues: nth($propValues, $i); // value for current breakpoint
 
     // in case if current key:value pair is not last in map list
     @if ($i != $breakpointsLength) {
@@ -85,11 +140,11 @@
 
       @media (max-width: #{$currentBreakpoint}px) {
         #{$propName}:
-          csslock(
-            $propValuesFrom: ($currentPropValue),
-            $propValuesTo: ($nextPropValue),
-            $sizeFrom: $currentBreakpoint,
-            $sizeTo: $nextBreakpoint
+          responsiveValue(
+            $currentPropValues,
+            $nextPropValue,
+            $currentBreakpoint,
+            $nextBreakpoint
           );
       }
     } @else {
@@ -97,7 +152,7 @@
       // and if last breakpoint is not equal to 320px
       @if ($currentBreakpoint != 320) {
         @media (max-width: #{$currentBreakpoint}px) {
-          #{$propName}: #{$currentPropValue}px;
+          #{$propName}: concatValues($currentPropValues);
         }
       }
     }
