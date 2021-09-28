@@ -104,17 +104,17 @@
 // or
 //
 // .your-class {
-//   @include responsiveProperty($propName: "font-size", $breakpoints: (1900: 54, 1100: 45, 768: 35, 350: 20));
+//   @include responsiveProperty($propName: "font-size", $mediaEntries: (1900: 54, 1100: 45, 768: 35, 350: 20));
 // }
-// @param  {sass array} $breakPoints: () map list of breakpoints
+// @param  {sass array} $mediaEntries: () map list of mediaEntries
 // @param  {string} $propName: () name of css property
 // @return {css property} property for each breakpoint
 @mixin responsiveProperty(
   $propName: null,
-  $breakpoints: ()
+  $mediaEntries: ()
 ) {
-  $screenSizes: map-keys($breakpoints);
-  $propValues: map-values($breakpoints);
+  $screenSizes: map-keys($mediaEntries);
+  $propValues: map-values($mediaEntries);
 
   // get map length
   $breakpointsLength: length($screenSizes);
@@ -126,7 +126,7 @@
   $propValue: "";
 
   // initial variable value
-  #{$propName}: concatValues($propValues);
+  #{$propName}: concatValues(nth($propValues, 1));
 
   // generating media queries
   @for $i from 1 through length($screenSizes) {
